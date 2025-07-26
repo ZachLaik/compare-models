@@ -5,7 +5,7 @@ const tableContainer = document.getElementById("table-container");
 
 // Columns to hide
 const columnsToHide = ["max_tokens", "Rank (StyleCtrl)", "95% CI", "Votes", "model", "mode", "supports_function_calling",
-  "supports_parallel_function_calling", "supports_vision", "supports_audio_input", "supports_audio_output", 
+  "supports_parallel_function_calling", "supports_vision", "supports_audio_input", "supports_audio_output", "supported_endpoints",	"supported_modalities",	"supported_output_modalities",
   "supports_prompt_caching", "supports_response_schema", "supports_system_messages", "supports_reasoning", 
   "supports_web_search", "search_context_cost_per_query", "file_search_cost_per_1k_calls", "file_search_cost_per_gb_per_day", 
   "vector_store_cost_per_gb_per_day", "computer_use_input_cost_per_1k_tokens", "computer_use_output_cost_per_1k_tokens", 
