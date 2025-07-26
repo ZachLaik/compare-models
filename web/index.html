@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Chatbot Model Comparator</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>🧠 Compare LLMs from Chatbot Arena</h1>
+  <p>
+    Data from <a href="https://huggingface.co/spaces/lmarena-ai/chatbot-arena-leaderboard" target="_blank">Chatbot Arena</a> (votes-based) and <a href="https://github.com/BerriAI/litellm" target="_blank">LiteLLM</a> (pricing).
+  </p>
+
+  <label for="search">🔎 Search model name:</label>
+  <input type="text" id="search" placeholder="e.g. gpt-4o, llama, mistral" />
+
+  <div id="table-container"></div>
+
+  <footer>
+    <p><strong>Citation:</strong> Chiang et al. (2024), Chatbot Arena. <a href="https://arxiv.org/abs/2403.04132" target="_blank">[arXiv]</a></p>
+    <p>Model pricing via <a href="https://github.com/BerriAI/litellm" target="_blank">LiteLLM</a> (MIT License)</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
