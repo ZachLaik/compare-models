@@ -2,3 +2,19 @@ modules = ["python-3.12"]
 
 [nix]
 channel = "stable-25_05"
+
+[workflows]
+runButton = "Preview"
+
+[[workflows.workflow]]
+name = "Preview"
+author = 25161428
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python3 -m http.server 5000 --directory docs"
+
+[[ports]]
+localPort = 5000
+externalPort = 80
