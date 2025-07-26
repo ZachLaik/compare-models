@@ -2,6 +2,10 @@ const CSV_URL = "https://raw.githubusercontent.com/ZachLaik/compare-models/main/
 
 const searchInput = document.getElementById("search");
 const tableContainer = document.getElementById("table-container");
+const compareButton = document.getElementById("compare-button");
+
+let fullData = [];
+let isCompareMode = false;
 
 // Columns to hide
 const columnsToHide = ["max_tokens", "Rank (StyleCtrl)", "95% CI", "Votes", "model", "mode", "supports_function_calling",
@@ -32,6 +36,15 @@ const columnsToHide = ["max_tokens", "Rank (StyleCtrl)", "95% CI", "Votes", "mod
 function createTable(data) {
   const headers = [
     "", // For checkboxes
+    "Rank", "Model", "Arena Score", "Organization", "License",
+    "Knowledge Cutoff", "Max Input Tokens", "Max Output Tokens", "Provider",
+    "Input Cost ($/1M)", "Output Cost ($/1M)",
+    "Reasoning Cost ($/1M)", "Cache Read Cost", 
+    "Batch Input Cost ($/1M)", "Batch Output Cost ($/1M)"
+  ];
+  
+  const dataKeys = [
+    "", // For checkboxes
     "Rank* (UB)", "Model", "Arena Score", "Organization", "License",
     "Knowledge Cutoff", "max_input_tokens", "max_output_tokens", "litellm_provider",
     "input_cost_per_million_tokens ($)", "output_cost_per_million_tokens ($)",
@@ -54,17 +67,20 @@ function createTable(data) {
   const tbody = table.createTBody();
   data.forEach((row) => {
     const tr = tbody.insertRow();
-    headers.forEach((h, index) => {
+    dataKeys.forEach((key, index) => {
       const td = tr.insertCell();
       if (index === 0) {
         // Checkbox column
         const checkbox = document.createElement("input");
         checkbox.type = "checkbox";
+        checkbox.className = "model-checkbox";
+        checkbox.dataset.model = row["Model"];
         td.appendChild(checkbox);
-      } else if (h.includes("cost")) {
-        td.textContent = `$${parseFloat(row[h]).toFixed(2)}`;
+      } else if (key.includes("cost")) {
+        const value = parseFloat(row[key]);
+        td.textContent = isNaN(value) ? "N/A" : `$${value.toFixed(2)}`;
       } else {
-        td.textContent = row[h];
+        td.textContent = row[key] || "N/A";
       }
     });
   });
@@ -80,17 +96,51 @@ function filterData(data, query) {
   );
 }
 
+// Compare selected models
+function compareSelectedModels() {
+  const checkboxes = document.querySelectorAll('.model-checkbox:checked');
+  if (checkboxes.length === 0) {
+    alert("Please select at least one model to compare.");
+    return;
+  }
+  
+  const selectedModels = Array.from(checkboxes).map(cb => cb.dataset.model);
+  const filteredData = fullData.filter(row => selectedModels.includes(row.Model));
+  
+  isCompareMode = true;
+  compareButton.textContent = "Show All Models";
+  createTable(filteredData);
+}
+
+// Show all models
+function showAllModels() {
+  isCompareMode = false;
+  compareButton.textContent = "Compare Selected Models";
+  const filtered = filterData(fullData, searchInput.value);
+  createTable(filtered);
+}
+
 // Load CSV and render
 Papa.parse(CSV_URL, {
   download: true,
   header: true,
   complete: (results) => {
-    let fullData = results.data;
+    fullData = results.data;
     createTable(fullData);
 
     searchInput.addEventListener("input", () => {
-      const filtered = filterData(fullData, searchInput.value);
-      createTable(filtered);
+      if (!isCompareMode) {
+        const filtered = filterData(fullData, searchInput.value);
+        createTable(filtered);
+      }
+    });
+
+    compareButton.addEventListener("click", () => {
+      if (isCompareMode) {
+        showAllModels();
+      } else {
+        compareSelectedModels();
+      }
     });
   },
 });

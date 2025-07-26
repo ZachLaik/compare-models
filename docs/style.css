@@ -23,12 +23,32 @@ input[type="text"], button {
 table {
   border-collapse: collapse;
   width: 100%;
+  font-size: 0.85em;
+  table-layout: fixed;
+}
+
+.table-wrapper {
   overflow-x: auto;
+  margin: 20px 0;
 }
 
 th, td {
   border: 1px solid #444;
-  padding: 10px;
+  padding: 8px;
+  text-align: left;
+  word-wrap: break-word;
+}
+
+th:first-child, td:first-child {
+  width: 40px;
+}
+
+th:nth-child(2), td:nth-child(2) {
+  width: 60px;
+}
+
+th:nth-child(3), td:nth-child(3) {
+  width: 150px;
 }
 
 th {
