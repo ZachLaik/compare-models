@@ -80,6 +80,9 @@ function createTable(data) {
       } else if (key.includes("cost")) {
         const value = parseFloat(row[key]);
         td.textContent = isNaN(value) ? "N/A" : `$${value.toFixed(2)}`;
+      } else if (key.includes("tokens")) {
+        const value = parseInt(row[key]);
+        td.textContent = isNaN(value) ? "N/A" : value.toLocaleString();
       } else {
         td.textContent = row[key] || "N/A";
       }
