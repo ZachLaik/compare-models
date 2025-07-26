@@ -3,9 +3,11 @@ const CSV_URL = "https://raw.githubusercontent.com/ZachLaik/compare-models/main/
 const searchInput = document.getElementById("search");
 const tableContainer = document.getElementById("table-container");
 const compareButton = document.getElementById("compare-button");
+const viewAllProvidersToggle = document.getElementById("view-all-providers");
 
 let fullData = [];
 let isCompareMode = false;
+let showAllProviders = false;
 
 // Columns to hide
 const columnsToHide = ["max_tokens", "Rank (StyleCtrl)", "95% CI", "Votes", "model", "mode", "supports_function_calling",
@@ -89,10 +91,25 @@ function createTable(data) {
   tableContainer.appendChild(table);
 }
 
+// Remove duplicate models, keeping only the first provider (usually the primary one)
+function removeDuplicateModels(data) {
+  if (showAllProviders) return data;
+  
+  const seen = new Set();
+  return data.filter((row) => {
+    const key = `${row.Model}-${row.Organization}`;
+    if (seen.has(key)) {
+      return false;
+    }
+    seen.add(key);
+    return true;
+  });
+}
+
 // Filter data
 function filterData(data, query) {
   return data.filter((row) =>
-    row.Model.toLowerCase().includes(query.toLowerCase())
+    row.Model && row.Model.toLowerCase().includes(query.toLowerCase())
   );
 }
 
@@ -117,7 +134,8 @@ function showAllModels() {
   isCompareMode = false;
   compareButton.textContent = "Compare Selected Models";
   const filtered = filterData(fullData, searchInput.value);
-  createTable(filtered);
+  const processedFiltered = removeDuplicateModels(filtered);
+  createTable(processedFiltered);
 }
 
 // Load CSV and render
@@ -125,13 +143,24 @@ Papa.parse(CSV_URL, {
   download: true,
   header: true,
   complete: (results) => {
-    fullData = results.data;
-    createTable(fullData);
+    fullData = results.data.filter(row => row.Model); // Filter out empty rows
+    const processedData = removeDuplicateModels(fullData);
+    createTable(processedData);
 
     searchInput.addEventListener("input", () => {
       if (!isCompareMode) {
         const filtered = filterData(fullData, searchInput.value);
-        createTable(filtered);
+        const processedFiltered = removeDuplicateModels(filtered);
+        createTable(processedFiltered);
+      }
+    });
+
+    viewAllProvidersToggle.addEventListener("change", () => {
+      showAllProviders = viewAllProvidersToggle.checked;
+      if (!isCompareMode) {
+        const filtered = filterData(fullData, searchInput.value);
+        const processedFiltered = removeDuplicateModels(filtered);
+        createTable(processedFiltered);
       }
     });
 
