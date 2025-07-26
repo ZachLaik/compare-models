@@ -38,7 +38,7 @@ function createTable(data) {
   const headers = [
     "", // For checkboxes
     "Rank", "Model", "Arena Score", "Organization", "License",
-    "Knowledge Cutoff", "Max Input Tokens", "Max Output Tokens", "Provider",
+    "Max Input Tokens", "Max Output Tokens", "Provider",
     "Input Cost ($/1M)", "Output Cost ($/1M)",
     "Reasoning Cost ($/1M)", "Cache Read Cost", 
     "Batch Input Cost ($/1M)", "Batch Output Cost ($/1M)"
@@ -47,7 +47,7 @@ function createTable(data) {
   const dataKeys = [
     "", // For checkboxes
     "Rank* (UB)", "Model", "Arena Score", "Organization", "License",
-    "Knowledge Cutoff", "max_input_tokens", "max_output_tokens", "litellm_provider",
+    "max_input_tokens", "max_output_tokens", "litellm_provider",
     "input_cost_per_million_tokens ($)", "output_cost_per_million_tokens ($)",
     "output_cost_per_reasoning_per_million_tokens ($)", "cache_read_input_token_cost",
     "input_cost_per_million_tokens_batches ($)", "output_cost_per_million_tokens_batches ($)"
