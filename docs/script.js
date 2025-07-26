@@ -43,7 +43,7 @@ function createTable(data) {
     "Reasoning Cost ($/1M)", "Cache Read Cost", 
     "Batch Input Cost ($/1M)", "Batch Output Cost ($/1M)"
   ];
-  
+
   const dataKeys = [
     "", // For checkboxes
     "Rank* (UB)", "Model", "Arena Score", "Organization", "License",
@@ -100,7 +100,7 @@ function filterData(data, query) {
 // Remove duplicate models, keeping only the first provider (usually the primary one)
 function removeDuplicateModels(data) {
   if (showAllProviders) return data;
-  
+
   const seen = new Set();
   return data.filter((row) => {
     const key = `${row.Model}-${row.Organization}`;
@@ -119,10 +119,10 @@ function compareSelectedModels() {
     alert("Please select at least one model to compare.");
     return;
   }
-  
+
   const selectedModels = Array.from(checkboxes).map(cb => cb.dataset.model);
   const filteredData = fullData.filter(row => selectedModels.includes(row.Model));
-  
+
   isCompareMode = true;
   compareButton.textContent = "Show All Models";
   createTable(filteredData);
