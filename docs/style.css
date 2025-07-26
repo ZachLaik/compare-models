@@ -24,8 +24,7 @@ table {
   border-collapse: collapse;
   width: 100%;
   font-size: 0.85em;
-  table-layout: auto;
-  min-width: 1200px;
+  table-layout: fixed;
 }
 
 .table-wrapper {
@@ -37,71 +36,19 @@ th, td {
   border: 1px solid #444;
   padding: 8px;
   text-align: left;
-  white-space: nowrap;
+  word-wrap: break-word;
 }
 
-/* Checkbox column */
-th:nth-child(1), td:nth-child(1) {
+th:first-child, td:first-child {
   width: 40px;
 }
 
-/* Rank column */
 th:nth-child(2), td:nth-child(2) {
   width: 60px;
 }
 
-/* Model column */
 th:nth-child(3), td:nth-child(3) {
-  width: 180px;
-  white-space: normal;
-  word-wrap: break-word;
-}
-
-/* Arena Score */
-th:nth-child(4), td:nth-child(4) {
-  width: 80px;
-}
-
-/* Organization */
-th:nth-child(5), td:nth-child(5) {
-  width: 100px;
-}
-
-/* License */
-th:nth-child(6), td:nth-child(6) {
-  width: 100px;
-}
-
-/* Knowledge Cutoff */
-th:nth-child(7), td:nth-child(7) {
-  width: 120px;
-}
-
-/* Max Input Tokens */
-th:nth-child(8), td:nth-child(8) {
-  width: 120px;
-}
-
-/* Max Output Tokens */
-th:nth-child(9), td:nth-child(9) {
-  width: 120px;
-}
-
-/* Provider */
-th:nth-child(10), td:nth-child(10) {
   width: 150px;
-  white-space: normal;
-  word-wrap: break-word;
-}
-
-/* Cost columns */
-th:nth-child(11), td:nth-child(11),
-th:nth-child(12), td:nth-child(12),
-th:nth-child(13), td:nth-child(13),
-th:nth-child(14), td:nth-child(14),
-th:nth-child(15), td:nth-child(15),
-th:nth-child(16), td:nth-child(16) {
-  width: 100px;
 }
 
 th {
