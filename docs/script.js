@@ -30,7 +30,14 @@ const columnsToHide = ["max_tokens", "Rank (StyleCtrl)", "95% CI", "Votes", "mod
   "output_db_cost_per_token", "output_dbu_cost_per_token"];
 
 function createTable(data) {
-  const headers = Object.keys(data[0]).filter(header => !columnsToHide.includes(header));
+  const headers = [
+    "Rank* (UB)", "Model", "Arena Score", "Organization", "License",
+    "Knowledge Cutoff", "max_input_tokens", "max_output_tokens", "litellm_provider",
+    "input_cost_per_million_tokens ($)", "output_cost_per_million_tokens ($)",
+    "output_cost_per_reasoning_per_million_tokens ($)", "cache_read_input_token_cost",
+    "input_cost_per_million_tokens_batches ($)", "output_cost_per_million_tokens_batches ($)"
+  ];
+
   const table = document.createElement("table");
 
   // Table header
@@ -48,7 +55,12 @@ function createTable(data) {
     const tr = tbody.insertRow();
     headers.forEach((h) => {
       const td = tr.insertCell();
-      td.textContent = row[h];
+      // Add dollar sign for cost columns
+      if (h.includes("cost")) {
+        td.textContent = `$${parseFloat(row[h]).toFixed(2)}`;
+      } else {
+        td.textContent = row[h];
+      }
     });
   });
 
