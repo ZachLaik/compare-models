@@ -6,6 +6,7 @@ const compareButton = document.getElementById("compare-button");
 
 let fullData = [];
 let isCompareMode = false;
+let showAllProviders = false;
 
 // Columns to hide
 const columnsToHide = ["max_tokens", "Rank (StyleCtrl)", "95% CI", "Votes", "model", "mode", "supports_function_calling",
@@ -89,11 +90,26 @@ function createTable(data) {
   tableContainer.appendChild(table);
 }
 
-// Filter data
+// Filter data by search query
 function filterData(data, query) {
   return data.filter((row) =>
     row.Model.toLowerCase().includes(query.toLowerCase())
   );
+}
+
+// Remove duplicate models, keeping only the first provider (usually the primary one)
+function removeDuplicateModels(data) {
+  if (showAllProviders) return data;
+  
+  const seen = new Set();
+  return data.filter((row) => {
+    const key = `${row.Model}-${row.Organization}`;
+    if (seen.has(key)) {
+      return false;
+    }
+    seen.add(key);
+    return true;
+  });
 }
 
 // Compare selected models
@@ -116,8 +132,7 @@ function compareSelectedModels() {
 function showAllModels() {
   isCompareMode = false;
   compareButton.textContent = "Compare Selected Models";
-  const filtered = filterData(fullData, searchInput.value);
-  createTable(filtered);
+  refreshTable();
 }
 
 // Load CSV and render
@@ -126,12 +141,19 @@ Papa.parse(CSV_URL, {
   header: true,
   complete: (results) => {
     fullData = results.data;
-    createTable(fullData);
+    refreshTable();
 
     searchInput.addEventListener("input", () => {
       if (!isCompareMode) {
-        const filtered = filterData(fullData, searchInput.value);
-        createTable(filtered);
+        refreshTable();
+      }
+    });
+
+    const viewAllProvidersCheckbox = document.getElementById("view-all-providers");
+    viewAllProvidersCheckbox.addEventListener("change", () => {
+      showAllProviders = viewAllProvidersCheckbox.checked;
+      if (!isCompareMode) {
+        refreshTable();
       }
     });
 
@@ -144,3 +166,10 @@ Papa.parse(CSV_URL, {
     });
   },
 });
+
+// Refresh table with current filters
+function refreshTable() {
+  let filtered = filterData(fullData, searchInput.value);
+  filtered = removeDuplicateModels(filtered);
+  createTable(filtered);
+}
