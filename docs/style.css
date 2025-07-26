@@ -1,38 +1,45 @@
+
 body {
-  font-family: Arial, sans-serif;
+  font-family: 'Roboto', sans-serif;
   padding: 20px;
   max-width: 1000px;
   margin: auto;
+  background-color: #2d2d2d;
+  color: #e3e3e3;
 }
 
-input[type="text"] {
+input[type="text"], button {
   padding: 8px;
   font-size: 1em;
-  margin: 10px 0 20px;
-  width: 300px;
+  margin: 10px 0;
+  width: calc(100% - 20px);
+  border-radius: 10px;
+  border: 1px solid #444;
+  background: #333;
+  color: #fff;
+  box-shadow: 5px 5px 15px #1a1a1a, -5px -5px 15px #444;
 }
 
 table {
   border-collapse: collapse;
   width: 100%;
+  overflow-x: auto;
 }
 
 th, td {
-  border: 1px solid #ddd;
-  padding: 6px 8px;
+  border: 1px solid #444;
+  padding: 10px;
 }
 
 th {
-  background-color: #f0f0f0;
-  text-align: left;
+  background-color: #3a3a3a;
 }
 
 tr:hover {
-  background-color: #f9f9f9;
+  background-color: #3f3f46;
 }
 
-footer {
+.footer {
   margin-top: 40px;
   font-size: 0.9em;
-  color: #555;
 }

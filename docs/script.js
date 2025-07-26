@@ -31,6 +31,7 @@ const columnsToHide = ["max_tokens", "Rank (StyleCtrl)", "95% CI", "Votes", "mod
 
 function createTable(data) {
   const headers = [
+    "", // For checkboxes
     "Rank* (UB)", "Model", "Arena Score", "Organization", "License",
     "Knowledge Cutoff", "max_input_tokens", "max_output_tokens", "litellm_provider",
     "input_cost_per_million_tokens ($)", "output_cost_per_million_tokens ($)",
@@ -53,10 +54,14 @@ function createTable(data) {
   const tbody = table.createTBody();
   data.forEach((row) => {
     const tr = tbody.insertRow();
-    headers.forEach((h) => {
+    headers.forEach((h, index) => {
       const td = tr.insertCell();
-      // Add dollar sign for cost columns
-      if (h.includes("cost")) {
+      if (index === 0) {
+        // Checkbox column
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        td.appendChild(checkbox);
+      } else if (h.includes("cost")) {
         td.textContent = `$${parseFloat(row[h]).toFixed(2)}`;
       } else {
         td.textContent = row[h];
@@ -89,3 +94,4 @@ Papa.parse(CSV_URL, {
     });
   },
 });
+`
