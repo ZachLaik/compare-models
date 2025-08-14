@@ -14,70 +14,78 @@ let isCompareMode = false;
 let showAllProviders = false;
 let calculatedCosts = null;
 
+
 function createTable(data) {
   console.log("Creating table with", data.length, "rows");
 
   const headers = [
-    "", // For checkboxes
-    "Model", "Arena Score", "Organization", "License", "Rank",
+    "", "Model", "Arena Score", "Organization", "License", "Rank",
     "Max Input Tokens", "Max Output Tokens", "Provider",
     "Input Cost ($/1M)", "Output Cost ($/1M)"
   ];
 
   const dataKeys = [
-    "", // For checkboxes
-    "Model", "Arena Score", "Organization", "License", "Rank* (UB)",
+    "", "Model", "Arena Score", "Organization", "License", "Rank* (UB)",
     "max_input_tokens", "max_output_tokens", "litellm_provider",
     "input_cost_per_million_tokens ($)", "output_cost_per_million_tokens ($)"
   ];
 
-  const table = document.createElement("table");
+  // 👇 Only add this column if costs were computed
+  if (calculatedCosts && Object.keys(calculatedCosts).length) {
+    headers.push("Est. Total Cost");
+    dataKeys.push("__calc_total__");
+  }
 
-  // Table header
+  const table = document.createElement("table");
   const thead = table.createTHead();
   const headerRow = thead.insertRow();
-  headers.forEach((h) => {
+  headers.forEach(h => {
     const th = document.createElement("th");
     th.textContent = h;
     headerRow.appendChild(th);
   });
 
-  // Table body
   const tbody = table.createTBody();
-  data.forEach((row) => {
+  data.forEach(row => {
     const tr = tbody.insertRow();
     dataKeys.forEach((key, index) => {
       const td = tr.insertCell();
+
       if (index === 0) {
-        // Checkbox column
         const checkbox = document.createElement("input");
         checkbox.type = "checkbox";
         checkbox.className = "model-checkbox";
         checkbox.dataset.model = row["Model"];
         td.appendChild(checkbox);
-      } else if (key.includes("cost")) {
-        // Cost columns - handle the specific format from CSV
-        const rawValue = row[key];
-        
-        if (rawValue === "" || rawValue === null || rawValue === undefined || rawValue === "nan") {
-          td.textContent = "N/A";
-        } else {
-          // Parse as float and check if it's a valid number
-          const value = parseFloat(rawValue);
-          if (!isNaN(value) && value >= 0) {
-            td.textContent = `$${value.toFixed(2)}`;
-          } else {
-            td.textContent = "N/A";
-          }
-        }
-      } else if (key.includes("tokens") || key === "Rank* (UB)") {
-        // Numeric columns
-        const value = parseInt(row[key]);
-        td.textContent = isNaN(value) ? "N/A" : value.toLocaleString();
-      } else {
-        // Text columns
-        td.textContent = row[key] || "N/A";
+        return;
       }
+
+      if (key === "__calc_total__") {
+        const m = row["Model"];
+        const c = calculatedCosts?.[m];
+        if (c) {
+          td.textContent = `$${c.totalCost.toFixed(4)}`;
+          td.classList.add("calculated-cost");
+        } else {
+          td.textContent = "—";
+        }
+        return;
+      }
+
+      if (key.includes("cost")) {
+        const raw = row[key];
+        const num = typeof raw === "number" ? raw : parseFloat(raw);
+        td.textContent = Number.isFinite(num) ? `$${num.toFixed(2)}` : "N/A";
+        return;
+      }
+
+      if (key.includes("tokens") || key === "Rank* (UB)") {
+        const v = parseInt(row[key]);
+        td.textContent = Number.isFinite(v) ? v.toLocaleString() : "N/A";
+        return;
+      }
+
+      td.textContent = row[key] || "N/A";
     });
   });
 
