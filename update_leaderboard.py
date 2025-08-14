@@ -1,6 +1,7 @@
+
 #!/usr/bin/env python3
 """
-Download Chatbot-Arena leaderboard data, enrich it with model pricing,
+Download Chatbot-Arena+ leaderboard data from OpenLM.ai, enrich it with model pricing,
 and write:
   • chatbot_arena_leaderboard_with_cost.csv  (full table)
   • markdown_preview.md                      (top-100 rows, GitHub-friendly)
@@ -10,23 +11,135 @@ Run daily via GitHub Actions.
 import pandas as pd
 import requests
 import re
-from gradio_client import Client
+from typing import List, Optional
+from bs4 import BeautifulSoup
 
-# 1. Fetch data from Gradio API
-client = Client("lmarena-ai/chatbot-arena-leaderboard")
-table_data = client.predict(
-    category="Overall",
-    filters=[],
-    api_name="/update_leaderboard_and_plots"
-)[0]
+def parse_leaderboard_html(html: str) -> pd.DataFrame:
+    """Parse Chatbot Arena+ leaderboard HTML into a pandas DataFrame.
 
-headers = table_data["value"]["headers"]
-data = table_data["value"]["data"]
-if not (headers and data):
-    raise RuntimeError("❌ No data returned from Gradio API")
+    Args:
+        html: Raw HTML of the Chatbot Arena+ page.
 
-df = pd.DataFrame(data, columns=headers)
-print(f"✅ Fetched {len(df):,} leaderboard rows")
+    Returns:
+        A ``pandas.DataFrame`` with one row per model and columns:
+        ``rank_icon``, ``model``, ``arena_elo``, ``coding``, ``vision``,
+        ``aaii``, ``mmlu_pro``, ``arc_agi``, ``organisation``, ``license``.
+
+    Raises:
+        ValueError: If no table with class ``sortable`` is found in the HTML.
+    """
+    soup = BeautifulSoup(html, "html.parser")
+    table = soup.find("table", {"class": "sortable"})
+    if table is None:
+        raise ValueError("Could not find leaderboard table in the provided HTML.")
+
+    headers = [
+        "rank_icon",
+        "model",
+        "arena_elo",
+        "coding",
+        "vision",
+        "aaii",
+        "mmlu_pro",
+        "arc_agi",
+        "organisation",
+        "license",
+    ]
+    data: List[List[Optional[str]]] = []
+
+    # Iterate over each table row in tbody
+    tbody = table.find("tbody")
+    for row in tbody.find_all("tr"):
+        cols = row.find_all("td")
+        if not cols:
+            continue
+        row_data: List[Optional[str]] = []
+        # Column 0: rank icon (🏆, 🥇, 🥈, etc.)
+        rank_icon = cols[0].get_text(strip=True) if cols[0] else None
+        row_data.append(rank_icon)
+        # Column 1: model name
+        model = cols[1].get_text(strip=True) if cols[1] else None
+        row_data.append(model)
+        # Columns 2-8: numeric metrics (code inside <code> tags)
+        for i in range(2, 8):
+            cell = cols[i] if i < len(cols) else None
+            if cell:
+                # If the cell contains code tags, extract the numeric text
+                code_tags = cell.find_all("code")
+                if code_tags:
+                    # Some cells highlight the highest value within <span class="mark"><strong><code>...</code></strong></span>
+                    # We take the first <code> tag value
+                    value = code_tags[0].get_text(strip=True)
+                else:
+                    value = cell.get_text(strip=True)
+                row_data.append(value if value else None)
+            else:
+                row_data.append(None)
+        # Column 8: organisation (contains text after an optional <img> or <svg> icon)
+        organisation_cell = cols[8] if len(cols) > 8 else None
+        organisation = None
+        if organisation_cell:
+            # Remove any <img> or <svg> tags then get remaining text
+            for tag in organisation_cell.find_all(["img", "svg"]):
+                tag.decompose()
+            organisation = organisation_cell.get_text(strip=True) or None
+        row_data.append(organisation)
+        # Column 9: license
+        license_cell = cols[9] if len(cols) > 9 else None
+        license_value = license_cell.get_text(strip=True) if license_cell else None
+        row_data.append(license_value)
+        data.append(row_data)
+
+    df = pd.DataFrame(data, columns=headers)
+    return df
+
+def scrape_openlm_chatbot_arena(url: str = "https://openlm.ai/chatbot-arena/",
+                                 timeout: float = 15.0,
+                                 user_agent: Optional[str] = None) -> pd.DataFrame:
+    """Fetch and parse the Chatbot Arena+ leaderboard.
+
+    Args:
+        url: The URL of the leaderboard page (default: Chatbot Arena+).
+        timeout: Timeout in seconds for the HTTP request.
+        user_agent: Optional custom User‑Agent string to include in the request.
+
+    Returns:
+        A pandas DataFrame with the leaderboard data.
+
+    Raises:
+        requests.HTTPError: If the HTTP request fails.
+        ValueError: If no table is found in the HTML.
+    """
+    headers = {}
+    if user_agent:
+        headers["User-Agent"] = user_agent
+    else:
+        headers["User-Agent"] = (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/115.0 Safari/537.36"
+        )
+    response = requests.get(url, headers=headers, timeout=timeout)
+    # Raise an exception for HTTP errors (e.g., 403)
+    response.raise_for_status()
+    return parse_leaderboard_html(response.text)
+
+# 1. Fetch data from OpenLM.ai
+df = scrape_openlm_chatbot_arena()
+print(f"✅ Fetched {len(df):,} leaderboard rows from OpenLM.ai")
+
+# Map OpenLM.ai columns to expected columns for the frontend
+df = df.rename(columns={
+    'model': 'Model',
+    'arena_elo': 'Arena Score',
+    'organisation': 'Organization',
+    'license': 'License'
+})
+
+# Add a numeric rank based on Arena Score (higher is better)
+df['Arena Score'] = pd.to_numeric(df['Arena Score'], errors='coerce')
+df = df.sort_values('Arena Score', ascending=False, na_last=True)
+df['Rank* (UB)'] = range(1, len(df) + 1)
 
 # 2. Fetch model-pricing JSON
 resp = requests.get(

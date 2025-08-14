@@ -2,3 +2,4 @@ tabulate
 pandas
 requests
 gradio_client
+beautifulsoup4
