@@ -2,8 +2,7 @@
 body {
   font-family: 'Roboto', sans-serif;
   padding: 20px;
-  max-width: 1000px;
-  margin: auto;
+  margin: 0;
   background-color: #2d2d2d;
   color: #e3e3e3;
 }
@@ -30,24 +29,78 @@ table {
 .table-wrapper {
   overflow-x: auto;
   margin: 20px 0;
+  width: 100%;
 }
 
 th, td {
   border: 1px solid #444;
-  padding: 8px;
+  padding: 6px 8px;
   text-align: left;
-  white-space: nowrap;
-  min-width: fit-content;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  max-width: 200px;
 }
 
+/* Checkbox column */
 th:first-child, td:first-child {
   width: 40px;
+  min-width: 40px;
+  max-width: 40px;
 }
 
+/* Rank column */
+th:nth-child(2), td:nth-child(2) {
+  width: 60px;
+  min-width: 60px;
+  text-align: center;
+}
+
+/* Model name column - allow more space */
 th:nth-child(3), td:nth-child(3) {
-  white-space: normal;
-  max-width: 200px;
-  word-wrap: break-word;
+  min-width: 150px;
+  max-width: 250px;
+}
+
+/* Arena Score column */
+th:nth-child(4), td:nth-child(4) {
+  width: 90px;
+  min-width: 90px;
+  text-align: center;
+}
+
+/* Organization column */
+th:nth-child(5), td:nth-child(5) {
+  min-width: 100px;
+  max-width: 150px;
+}
+
+/* License column */
+th:nth-child(6), td:nth-child(6) {
+  min-width: 80px;
+  max-width: 120px;
+}
+
+/* Token columns */
+th:nth-child(7), td:nth-child(7),
+th:nth-child(8), td:nth-child(8) {
+  min-width: 100px;
+  max-width: 130px;
+  text-align: right;
+}
+
+/* Provider column */
+th:nth-child(9), td:nth-child(9) {
+  min-width: 90px;
+  max-width: 130px;
+}
+
+/* Cost columns */
+th:nth-child(10), td:nth-child(10),
+th:nth-child(11), td:nth-child(11) {
+  min-width: 100px;
+  max-width: 130px;
+  text-align: right;
 }
 
 th {
@@ -61,4 +114,80 @@ tr:hover {
 .footer {
   margin-top: 40px;
   font-size: 0.9em;
+}
+
+.cost-calculator {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 15px 20px;
+  border-radius: 12px;
+  margin: 20px 0;
+  border: 1px solid #8a94c7;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+}
+
+.cost-calculator h3 {
+  margin: 0 0 12px 0;
+  color: #ffffff;
+  font-size: 1.1em;
+  font-weight: 600;
+}
+
+.calculator-inputs {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.input-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.input-group label {
+  font-size: 0.85em;
+  color: #ffffff;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.input-group input {
+  width: 80px;
+  margin: 0;
+  padding: 6px 8px;
+  font-size: 0.9em;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+  border-radius: 6px;
+}
+
+.input-group input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+#calculate-costs {
+  background-color: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin: 0;
+  width: auto;
+  font-size: 0.9em;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+#calculate-costs:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.calculated-cost {
+  background-color: #2d5a3d !important;
+  color: #4CAF50 !important;
+  font-weight: bold;
 }
