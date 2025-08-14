@@ -1,3 +1,4 @@
+
 body {
   font-family: 'Roboto', sans-serif;
   padding: 20px;
@@ -189,18 +190,4 @@ tr:hover {
   background-color: #2d5a3d !important;
   color: #4CAF50 !important;
   font-weight: bold;
-}
-
-h1 {
-  text-align: center;
-  color: #333;
-  margin-bottom: 10px;
-}
-
-.last-updated {
-  text-align: center;
-  color: #666;
-  font-size: 0.9em;
-  margin-bottom: 20px;
-  font-style: italic;
 }

@@ -563,15 +563,9 @@ remaining_cols = [col for col in other_cols if col not in essential_cols]
 new_column_order = essential_cols + cost_cols + remaining_cols
 merged_reordered = merged[new_column_order]
 
-# Add timestamp as first line comment in CSV
-from datetime import datetime, timezone
-timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
-
-# Write CSV with timestamp header
-with open("chatbot_arena_leaderboard_with_cost.csv", "w") as f:
-    f.write(f"# Last updated: {timestamp}\n")
-    merged_reordered.to_csv(f, index=False)
-print("💾 CSV written with cost columns moved to front and timestamp")
+# Write CSV with reordered columns
+merged_reordered.to_csv("chatbot_arena_leaderboard_with_cost.csv", index=False)
+print("💾 CSV written with cost columns moved to front")
 
 top100_md = merged.head(100).to_markdown(index=False)
 with open("markdown_preview.md", "w", encoding="utf-8") as f:

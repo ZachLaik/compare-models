@@ -14,23 +14,6 @@ let isCompareMode = false;
 let showAllProviders = false;
 let calculatedCosts = null;
 
-// Function to display last updated timestamp
-function displayLastUpdated(timestamp) {
-  // Find or create the last updated element
-  let lastUpdatedElement = document.getElementById('last-updated');
-  if (!lastUpdatedElement) {
-    lastUpdatedElement = document.createElement('p');
-    lastUpdatedElement.id = 'last-updated';
-    lastUpdatedElement.className = 'last-updated';
-    
-    // Insert after the main heading
-    const heading = document.querySelector('h1');
-    heading.parentNode.insertBefore(lastUpdatedElement, heading.nextSibling);
-  }
-  
-  lastUpdatedElement.textContent = `Last updated: ${timestamp}`;
-}
-
 
 function createTable(data) {
   console.log("Creating table with", data.length, "rows");
@@ -199,24 +182,12 @@ function parseCSVManually(csvText) {
   const lines = csvText.split('\n');
   if (lines.length === 0) return [];
   
-  // Check if first line is a timestamp comment
-  let startIndex = 0;
-  let lastUpdated = null;
-  
-  if (lines[0].startsWith('# Last updated:')) {
-    lastUpdated = lines[0].replace('# Last updated: ', '').trim();
-    startIndex = 1;
-    
-    // Display the timestamp on the page
-    displayLastUpdated(lastUpdated);
-  }
-  
-  const headers = lines[startIndex].split(',');
+  const headers = lines[0].split(',');
   console.log("CSV Headers detected:", headers.slice(0, 10)); // Show first 10 headers
   
   const data = [];
   
-  for (let i = startIndex + 1; i < lines.length; i++) {
+  for (let i = 1; i < lines.length; i++) {
     const line = lines[i].trim();
     if (!line) continue;
     
