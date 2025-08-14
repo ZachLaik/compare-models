@@ -138,7 +138,7 @@ df = df.rename(columns={
 
 # Add a numeric rank based on Arena Score (higher is better)
 df['Arena Score'] = pd.to_numeric(df['Arena Score'], errors='coerce')
-df = df.sort_values('Arena Score', ascending=False, na_last=True)
+df = df.sort_values('Arena Score', ascending=False, na_position='last')
 df['Rank* (UB)'] = range(1, len(df) + 1)
 
 # 2. Fetch model-pricing JSON
