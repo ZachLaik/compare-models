@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 """
 Download Chatbot-Arena+ leaderboard data from OpenLM.ai, enrich it with model pricing,
@@ -11,7 +10,7 @@ Run daily via GitHub Actions.
 import pandas as pd
 import requests
 import re
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from bs4 import BeautifulSoup
 
 def parse_leaderboard_html(html: str) -> pd.DataFrame:
@@ -141,13 +140,96 @@ df['Arena Score'] = pd.to_numeric(df['Arena Score'], errors='coerce')
 df = df.sort_values('Arena Score', ascending=False, na_position='last')
 df['Rank* (UB)'] = range(1, len(df) + 1)
 
-# 2. Fetch model-pricing JSON
+def fetch_openrouter_pricing() -> Dict[str, Any]:
+    """Fetch pricing data from OpenRouter API as fallback."""
+    try:
+        resp = requests.get("https://openrouter.ai/api/v1/models", timeout=30)
+        resp.raise_for_status()
+        openrouter_data = resp.json()
+
+        # Convert OpenRouter format to match LiteLLM structure
+        openrouter_models = {}
+        for model in openrouter_data.get('data', []):
+            # Safely handle None values
+            model_id = model.get('id') or ''
+            canonical_slug = model.get('canonical_slug') or ''
+            hugging_face_id = model.get('hugging_face_id') or ''
+
+            # Convert to lowercase only if not empty
+            model_id = model_id.lower() if model_id else ''
+            canonical_slug = canonical_slug.lower() if canonical_slug else ''
+            hugging_face_id = hugging_face_id.lower() if hugging_face_id else ''
+
+            # Skip models without valid ID
+            if not model_id:
+                continue
+
+            pricing = model.get('pricing', {})
+
+            # Convert pricing from per-token to per-million-tokens for consistency
+            prompt_cost = float(pricing.get('prompt', 0)) if pricing.get('prompt') else None
+            completion_cost = float(pricing.get('completion', 0)) if pricing.get('completion') else None
+
+            if prompt_cost is not None or completion_cost is not None:
+                model_data = {
+                    'input_cost_per_token': prompt_cost,
+                    'output_cost_per_token': completion_cost,
+                    'max_input_tokens': model.get('context_length'),
+                    'max_output_tokens': model.get('top_provider', {}).get('max_completion_tokens'),
+                    'litellm_provider': 'openrouter',
+                    'mode': 'chat',
+                    'openrouter_id': model.get('id'),
+                    'canonical_slug': canonical_slug,
+                    'hugging_face_id': hugging_face_id
+                }
+
+                # Add under multiple identifiers for better matching
+                openrouter_models[model_id] = model_data
+
+                # Also add without the provider prefix for better matching
+                if '/' in model_id:
+                    model_without_prefix = model_id.split('/', 1)[1]
+                    openrouter_models[model_without_prefix] = model_data
+
+                if canonical_slug and canonical_slug != model_id:
+                    openrouter_models[canonical_slug] = model_data
+                    # Add canonical slug without prefix too
+                    if '/' in canonical_slug:
+                        canonical_without_prefix = canonical_slug.split('/', 1)[1]
+                        openrouter_models[canonical_without_prefix] = model_data
+
+                if hugging_face_id and hugging_face_id != model_id and hugging_face_id != canonical_slug:
+                    openrouter_models[hugging_face_id] = model_data
+
+        print(f"✅ Fetched pricing for {len(openrouter_models):,} model entries from OpenRouter")
+
+        # Log some examples of what we got from OpenRouter
+        debug_models = ['claude', 'glm', 'qwen']
+        for debug_name in debug_models:
+            matching_or_models = [k for k in openrouter_models.keys() if debug_name in k.lower()]
+            if matching_or_models:
+                print(f"   OpenRouter models containing '{debug_name}': {matching_or_models[:3]}{'...' if len(matching_or_models) > 3 else ''}")
+
+        return openrouter_models
+    except Exception as e:
+        print(f"⚠️ Failed to fetch OpenRouter pricing: {e}")
+        return {}
+
+# 2. Fetch model-pricing JSON from LiteLLM
 resp = requests.get(
     "https://raw.githubusercontent.com/BerriAI/litellm/main/model_prices_and_context_window.json",
     timeout=30,
 )
 resp.raise_for_status()
 model_info = resp.json()
+
+# 2b. Fetch OpenRouter pricing as fallback
+openrouter_models = fetch_openrouter_pricing()
+
+# Merge OpenRouter data into model_info for models not in LiteLLM
+for model_id, model_data in openrouter_models.items():
+    if model_id not in model_info:
+        model_info[model_id] = model_data
 
 model_df = (
     pd.DataFrame(
@@ -167,11 +249,243 @@ def clean(text: str) -> str:
     text = text.split("/")[-1]                 # keep suffix after /
     return text.strip().lower()
 
+def generate_model_variants(text: str) -> List[str]:
+    """Generate multiple variants of a model name for better matching."""
+    if not isinstance(text, str):
+        return [text]
+
+    variants = set()
+
+    # Start with the cleaned base name
+    base = clean(text)
+    variants.add(base)
+
+    # Remove common prefixes
+    for prefix in ['openai/', 'anthropic/', 'google/', 'meta/', 'qwen/', 'z-ai/', 'zhipuai/']:
+        if base.startswith(prefix):
+            variants.add(base[len(prefix):])
+
+    # Normalize separators
+    normalized = re.sub(r'[-_\s]+', '-', base)
+    variants.add(normalized)
+    variants.add(re.sub(r'[-_\s]+', '', base))  # no separators
+    variants.add(re.sub(r'[-_\s]+', '_', base))  # underscores
+
+    # Remove version suffixes and dates
+    for variant in list(variants):
+        # Remove dates like -2507, -0709, -20250805
+        no_date = re.sub(r'-\d{4}(-\d{2})?(-\d{2})?$', '', variant)
+        variants.add(no_date)
+
+        # Remove version numbers like -4.1, -235b
+        no_version = re.sub(r'-\d+(\.\d+)?[a-z]*$', '', variant)
+        variants.add(no_version)
+
+        # Remove instruct/chat suffixes
+        no_suffix = re.sub(r'-(instruct|chat|preview|turbo)$', '', variant)
+        variants.add(no_suffix)
+
+    # Handle specific model name patterns
+    for variant in list(variants):
+        # GLM-4.5 variants
+        if 'glm' in variant:
+            variants.add(re.sub(r'glm-?(\d+\.?\d*)', r'glm-\1', variant))
+            variants.add(re.sub(r'glm-?(\d+\.?\d*)', r'glm\1', variant))
+
+        # Claude variants
+        if 'claude' in variant:
+            # claude-opus-4.1 -> claude-4.1-opus, etc.
+            claude_match = re.match(r'claude-?(.+)', variant)
+            if claude_match:
+                parts = claude_match.group(1).split('-')
+                if len(parts) >= 2:
+                    variants.add(f"claude-{'-'.join(reversed(parts))}")
+
+        # Qwen variants
+        if 'qwen' in variant:
+            # Handle qwen3-235b-a22b-instruct-2507 patterns
+            qwen_base = re.sub(r'qwen(\d+)', r'qwen\1', variant)
+            variants.add(qwen_base)
+            # Remove model size indicators
+            variants.add(re.sub(r'-\d+b(-a\d+b)?', '', variant))
+
+    return list(variants)
+
+def create_matching_index(model_df: pd.DataFrame) -> Dict[str, str]:
+    """Create a comprehensive matching index for model names."""
+    matching_index = {}
+
+    for _, row in model_df.iterrows():
+        model_id = row['model']
+
+        # Add all variants of the model name
+        for variant in generate_model_variants(model_id):
+            if variant and variant not in matching_index:
+                matching_index[variant] = model_id
+
+    return matching_index
+
+# Enhance OpenRouter data processing to include multiple identifiers
+openrouter_models = fetch_openrouter_pricing()
+
+# Process OpenRouter models with multiple identifiers
+enhanced_openrouter = {}
+for model_data in openrouter_models.values():
+    # Extract model info from the raw data if available
+    pass
+
+# Add OpenRouter models with their various identifiers
+for model_id, model_data in openrouter_models.items():
+    if model_id not in model_info:
+        model_info[model_id] = model_data
+
+    # Also add canonical slug and hugging face variants if we can extract them
+    # This would require modifying fetch_openrouter_pricing to preserve this info
+
+model_df = (
+    pd.DataFrame(
+        [
+            dict(model=k, **v)
+            for k, v in model_info.items()
+        ]
+    )
+)
+
 df["Model"] = df["Model"].map(clean)
 model_df["model"] = model_df["model"].map(clean)
 
-# 4. Merge & transform prices → $/1M tokens
-merged = df.merge(model_df, left_on="Model", right_on="model", how="left")
+# Create comprehensive matching index
+matching_index = create_matching_index(model_df)
+
+print(f"📊 Created matching index with {len(matching_index):,} variants for {len(model_df):,} models")
+
+# Show examples of what's in our matching index for debugging
+debug_examples = {}
+for key in matching_index.keys():
+    for debug_name in ['claude', 'glm', 'qwen']:
+        if debug_name in key.lower():
+            if debug_name not in debug_examples:
+                debug_examples[debug_name] = []
+            if len(debug_examples[debug_name]) < 5:
+                debug_examples[debug_name].append(key)
+
+for debug_name, examples in debug_examples.items():
+    print(f"   Matching index entries containing '{debug_name}': {examples}")
+
+# 4. Advanced matching strategy
+def find_best_match(leaderboard_name: str) -> Optional[str]:
+    """Find the best match for a leaderboard model name."""
+    variants = generate_model_variants(leaderboard_name)
+
+    for variant in variants:
+        if variant in matching_index:
+            return matching_index[variant]
+
+    return None
+
+# Apply advanced matching with detailed logging
+def find_best_match_with_logging(leaderboard_name: str) -> Optional[str]:
+    """Find the best match for a leaderboard model name with detailed logging."""
+    # Add logging for specific models we're interested in
+    debug_models = ['claude opus 4.1', 'glm-4.5', 'qwen3-235b-a22b-instruct-2507']
+    should_log = any(debug_name.lower() in leaderboard_name.lower() for debug_name in debug_models)
+
+    if should_log:
+        print(f"\n🔍 DEBUG: Matching '{leaderboard_name}'")
+
+    variants = generate_model_variants(leaderboard_name)
+
+    if should_log:
+        print(f"   Generated {len(variants)} variants: {variants[:10]}{'...' if len(variants) > 10 else ''}")
+
+    for i, variant in enumerate(variants):
+        if variant in matching_index:
+            matched_model = matching_index[variant]
+            if should_log:
+                print(f"   ✅ MATCH found at variant #{i}: '{variant}' -> '{matched_model}'")
+            return matched_model
+
+    if should_log:
+        print(f"   ❌ NO MATCH found for any variant")
+        # Show what's available that might be similar
+        similar_keys = [k for k in matching_index.keys() if any(word in k for word in leaderboard_name.lower().split())][:5]
+        if similar_keys:
+            print(f"   Similar available keys: {similar_keys}")
+
+    return None
+
+df['matched_model'] = df['Model'].apply(find_best_match_with_logging)
+
+# Debug: Check what we have for Claude models specifically
+claude_models_in_df = df[df['Model'].str.contains('claude', case=False, na=False)]
+if not claude_models_in_df.empty:
+    print(f"\n🔍 CLAUDE DEBUG: Found {len(claude_models_in_df)} Claude models in leaderboard:")
+    for _, row in claude_models_in_df.iterrows():
+        print(f"   Leaderboard: '{row['Model']}' -> matched: '{row['matched_model']}'")
+
+        # Check if this matched model exists in our pricing data
+        if row['matched_model'] and row['matched_model'] in model_df['model'].values:
+            pricing_row = model_df[model_df['model'] == row['matched_model']].iloc[0]
+            input_cost = pricing_row.get('input_cost_per_token')
+            output_cost = pricing_row.get('output_cost_per_token')
+            print(f"      -> Found in pricing data: input=${input_cost}, output=${output_cost}")
+        else:
+            print(f"      -> ❌ NOT FOUND in pricing data")
+
+# For models that match multiple pricing entries, prefer ones with actual cost data
+def select_best_pricing_row(group):
+    """Select the best pricing row from a group of matches."""
+    # Prefer rows with both input and output cost data
+    has_both_costs = group[
+        (group['input_cost_per_token'].notna()) &
+        (group['output_cost_per_token'].notna())
+    ]
+
+    if not has_both_costs.empty:
+        # If multiple have both costs, prefer primary providers
+        primary_providers = ['openai', 'anthropic', 'vertex_ai-language-models', 'gemini']
+        primary_matches = has_both_costs[has_both_costs['litellm_provider'].isin(primary_providers)]
+        if not primary_matches.empty:
+            return primary_matches.iloc[0]
+        return has_both_costs.iloc[0]
+
+    # If none have both costs, prefer ones with at least input cost
+    has_input_cost = group[group['input_cost_per_token'].notna()]
+    if not has_input_cost.empty:
+        return has_input_cost.iloc[0]
+
+    # Otherwise return the first row
+    return group.iloc[0]
+
+# Group pricing data by model and select best row for each
+model_df_best = model_df.groupby('model').apply(select_best_pricing_row).reset_index(drop=True)
+
+print(f"📊 Reduced pricing data from {len(model_df):,} to {len(model_df_best):,} rows by selecting best pricing per model")
+
+# Merge using the matched model names with the deduplicated pricing data
+merged = df.merge(
+    model_df_best,
+    left_on='matched_model',
+    right_on='model',
+    how='left',
+    suffixes=('', '_pricing')
+)
+
+# Fill in the model column for successful matches
+merged['model'] = merged['model'].fillna(merged['matched_model'])
+
+print(f"✅ Matched pricing for {merged['input_cost_per_token'].notna().sum():,} out of {len(merged):,} models")
+
+# Debug: Check Claude pricing after merge
+claude_merged = merged[merged['Model'].str.contains('claude', case=False, na=False)]
+if not claude_merged.empty:
+    print(f"\n🔍 CLAUDE PRICING DEBUG after merge:")
+    for _, row in claude_merged.iterrows():
+        input_cost = row.get('input_cost_per_token')
+        output_cost = row.get('output_cost_per_token')
+        print(f"   '{row['Model']}': input=${input_cost}, output=${output_cost}")
+        if pd.isna(input_cost) and pd.isna(output_cost):
+            print(f"      ❌ NO PRICING DATA found for this model")
 
 for old, new in {
     "input_cost_per_token": "input_cost_per_million_tokens ($)",
@@ -181,12 +495,77 @@ for old, new in {
     "output_cost_per_token_batches": "output_cost_per_million_tokens_batches ($)",
 }.items():
     if old in merged.columns:
-        merged[new] = pd.to_numeric(merged[old], errors="coerce") * 1_000_000
+        print(f"\n🔍 Converting {old} to {new}")
+
+        # Convert from per-token to per-million-tokens, preserving NaN for missing values
+        numeric_values = pd.to_numeric(merged[old], errors="coerce")
+
+        # Multiply by 1M and round to 2 decimal places to avoid precision issues
+        converted_values = numeric_values * 1_000_000
+        merged[new] = converted_values.round(2)
+
+        # Debug: Show Claude values specifically
+        claude_rows = merged[merged['Model'].str.contains('claude', case=False, na=False)]
+        for _, row in claude_rows.head(3).iterrows():
+            original_val = row.get(old)
+            converted_val = row.get(new)
+            print(f"   '{row['Model']}' {old}: {original_val} -> {converted_val}")
+
         merged.drop(columns=old, inplace=True)
 
-# 5. Write artifacts
-merged.to_csv("chatbot_arena_leaderboard_with_cost.csv", index=False)
-print("💾 CSV written")
+# Debug: Check final pricing values before writing CSV
+claude_final = merged[merged['Model'].str.contains('claude', case=False, na=False)]
+if not claude_final.empty:
+    print(f"\n🔍 FINAL CSV DEBUG before writing:")
+    for _, row in claude_final.head(3).iterrows():
+        input_cost = row.get('input_cost_per_million_tokens ($)')
+        output_cost = row.get('output_cost_per_million_tokens ($)')
+        print(f"   '{row['Model']}': input=${input_cost}, output=${output_cost}")
+
+# 5. Validate data types before writing CSV
+cost_columns = [col for col in merged.columns if 'cost_per_million_tokens' in col]
+print(f"\n🔍 FINAL VALIDATION before CSV write:")
+print(f"   Cost columns: {cost_columns}")
+
+for col in cost_columns[:2]:  # Check first 2 cost columns
+    print(f"   {col} dtype: {merged[col].dtype}")
+    sample_values = merged[col].dropna().head(3)
+    print(f"   Sample non-null values: {list(sample_values)}")
+
+# Ensure numeric columns are properly formatted and convert to strings to avoid pandas serialization issues
+for col in cost_columns:
+    if col in merged.columns:
+        # Convert to numeric first
+        numeric_col = pd.to_numeric(merged[col], errors='coerce')
+        
+        # Debug: Show what we have before string conversion
+        claude_debug = merged[merged['Model'].str.contains('claude', case=False, na=False)][col].head(3)
+        if not claude_debug.empty:
+            print(f"   Final {col} values for Claude before CSV write: {list(claude_debug)}")
+            print(f"   As numeric: {list(pd.to_numeric(claude_debug, errors='coerce'))}")
+        
+        # Convert to strings with proper formatting to avoid pandas CSV serialization bugs
+        merged[col] = numeric_col.apply(lambda x: f"{x:.6f}" if pd.notna(x) else "")
+        
+        # Final debug: Show string values
+        if not claude_debug.empty:
+            claude_final = merged[merged['Model'].str.contains('claude', case=False, na=False)][col].head(3)
+            print(f"   Final {col} string values for Claude: {list(claude_final)}")
+
+# Reorder columns to put cost columns at the front for better CSV parsing
+cost_cols = [col for col in merged.columns if 'cost_per_million_tokens' in col]
+other_cols = [col for col in merged.columns if col not in cost_cols]
+
+# Create new column order: essential columns first, then cost columns, then the rest
+essential_cols = ['rank_icon', 'Model', 'Arena Score', 'Organization', 'License']
+remaining_cols = [col for col in other_cols if col not in essential_cols]
+
+new_column_order = essential_cols + cost_cols + remaining_cols
+merged_reordered = merged[new_column_order]
+
+# Write CSV with reordered columns
+merged_reordered.to_csv("chatbot_arena_leaderboard_with_cost.csv", index=False)
+print("💾 CSV written with cost columns moved to front")
 
 top100_md = merged.head(100).to_markdown(index=False)
 with open("markdown_preview.md", "w", encoding="utf-8") as f:
