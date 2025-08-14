@@ -19,13 +19,13 @@ function createTable(data) {
   console.log("Creating table with", data.length, "rows");
 
   const headers = [
-    "", "Model", "Arena Score", "Organization", "License", "Rank",
+    "", "Rank", "Model", "Arena Score", "Organization", "License",
     "Max Input Tokens", "Max Output Tokens", "Provider",
     "Input Cost ($/1M)", "Output Cost ($/1M)"
   ];
 
   const dataKeys = [
-    "", "Model", "Arena Score", "Organization", "License", "Rank* (UB)",
+    "", "Rank* (UB)", "Model", "Arena Score", "Organization", "License",
     "max_input_tokens", "max_output_tokens", "litellm_provider",
     "input_cost_per_million_tokens ($)", "output_cost_per_million_tokens ($)"
   ];
