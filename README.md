@@ -1,12 +1,10 @@
-Of course! Here’s the full README.md in clean markdown format, ready to drop into your repo:
-
 # Compare Models — Daily Leaderboard + Pricing Merge
 
 **Compare Models** keeps a daily, machine-readable snapshot of top chatbot models by **arena ranking** and **inference pricing**.  
 It fetches fresh rankings from the **Open LLM/Chatbot Arena** and merges them with public pricing from **OpenRouter** and **LiteLLM**, producing a single CSV you can use in notebooks, dashboards, or apps.
 
 > Primary artifact: **`chatbot_arena_leaderboard_with_cost.csv`** (updated daily)
-> A hosted Webview with cost calculator is also available [here](https://zachlaik.github.io/compare-models)
+> A hosted Webview with cost calculator is also available [here](aipricecomparison.live)
 
 ---
 
