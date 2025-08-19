@@ -55,25 +55,27 @@ No API keys are required for the default sources. If you point the script to aut
 Using the CSV
 
 In Python (pandas)
-
+```
 import pandas as pd
 
 df = pd.read_csv("chatbot_arena_leaderboard_with_cost.csv")
+```
 # Examples:
 # Top 10 by arena score
+```
 print(df.sort_values("arena_score", ascending=False).head(10))
 
 # Best value: score per 1€ of output tokens (example columns)
 df["value_score"] = df["arena_score"] / (df["output_usd_per_1k_tokens"])
 print(df.sort_values("value_score", ascending=False).head(10))
-
+```
 In JavaScript (browser/Node)
-
+```
 // Browser (with a raw link to the CSV in your GitHub or CDN)
 const res = await fetch('chatbot_arena_leaderboard_with_cost.csv');
 const text = await res.text();
 // Parse with PapaParse or your favorite CSV lib
-
+```
 
 ⸻
 
