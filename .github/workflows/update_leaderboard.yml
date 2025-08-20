@@ -3,18 +3,26 @@ name: Refresh leaderboard & pricing
 on:
   schedule:
     # Runs every day at 03:00 Paris time (01:00 UTC during summertime)
-    - cron:  '0 1 * * *'
-  workflow_dispatch:  # allow manual runs from the Actions tab
+    - cron: '0 1 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: daily-leaderboard-refresh
+  cancel-in-progress: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: write      # allow the bot to push changes
+      contents: write
       id-token: write
+
     steps:
       - name: Check out repo
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0        # <-- needed for rebase
+          persist-credentials: true
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -32,3 +40,6 @@ jobs:
         with:
           add: "*.csv *.md"
           message: "chore: daily leaderboard refresh [skip ci]"
+          default_author: github_actor
+          pull: "--rebase --autostash"   # <-- resolves non-fast-forward
+          push: true
