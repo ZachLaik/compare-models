@@ -204,11 +204,16 @@ def fetch_openrouter_pricing() -> Dict[str, Any]:
         print(f"✅ Fetched pricing for {len(openrouter_models):,} model entries from OpenRouter")
 
         # Log some examples of what we got from OpenRouter
-        debug_models = ['claude', 'glm', 'qwen']
+        debug_models = ['claude', 'glm', 'qwen', 'gpt-5']
         for debug_name in debug_models:
             matching_or_models = [k for k in openrouter_models.keys() if debug_name in k.lower()]
             if matching_or_models:
                 print(f"   OpenRouter models containing '{debug_name}': {matching_or_models[:3]}{'...' if len(matching_or_models) > 3 else ''}")
+
+        # Check specifically for GPT-5 in OpenRouter
+        if 'gpt-5' in openrouter_models:
+            gpt5_data = openrouter_models['gpt-5']
+            print(f"   🔍 GPT-5 found in OpenRouter with pricing: input=${gpt5_data.get('input_cost_per_token')}, output=${gpt5_data.get('output_cost_per_token')}")
 
         return openrouter_models
     except Exception as e:
@@ -537,16 +542,16 @@ for col in cost_columns:
     if col in merged.columns:
         # Convert to numeric first
         numeric_col = pd.to_numeric(merged[col], errors='coerce')
-        
+
         # Debug: Show what we have before string conversion
         claude_debug = merged[merged['Model'].str.contains('claude', case=False, na=False)][col].head(3)
         if not claude_debug.empty:
             print(f"   Final {col} values for Claude before CSV write: {list(claude_debug)}")
             print(f"   As numeric: {list(pd.to_numeric(claude_debug, errors='coerce'))}")
-        
+
         # Convert to strings with proper formatting to avoid pandas CSV serialization bugs
         merged[col] = numeric_col.apply(lambda x: f"{x:.6f}" if pd.notna(x) else "")
-        
+
         # Final debug: Show string values
         if not claude_debug.empty:
             claude_final = merged[merged['Model'].str.contains('claude', case=False, na=False)][col].head(3)
