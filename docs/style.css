@@ -290,32 +290,32 @@ th:nth-child(4), td:nth-child(4) {
   text-align: center;
 }
 
-/* Organization */
-th:nth-child(5), td:nth-child(5) {
-  min-width: 100px;
-}
-
-/* License */
-th:nth-child(6), td:nth-child(6) {
-  min-width: 100px;
-}
-
 /* Token columns */
+th:nth-child(5), td:nth-child(5),
+th:nth-child(6), td:nth-child(6) {
+  text-align: right;
+  min-width: 100px;
+}
+
+/* Cost columns */
 th:nth-child(7), td:nth-child(7),
 th:nth-child(8), td:nth-child(8) {
   text-align: right;
   min-width: 100px;
 }
 
-/* Provider */
+/* Organization */
 th:nth-child(9), td:nth-child(9) {
+  min-width: 100px;
+}
+
+/* Provider */
+th:nth-child(10), td:nth-child(10) {
   min-width: 80px;
 }
 
-/* Cost columns */
-th:nth-child(10), td:nth-child(10),
+/* License */
 th:nth-child(11), td:nth-child(11) {
-  text-align: right;
   min-width: 100px;
 }
 

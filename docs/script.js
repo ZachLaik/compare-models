@@ -19,15 +19,13 @@ function createTable(data) {
   console.log("Creating table with", data.length, "rows");
 
   const headers = [
-    "", "Rank", "Model", "Arena Score", "Organization", "License",
-    "Max Input Tokens", "Max Output Tokens", "Provider",
-    "Input Cost ($/1M)", "Output Cost ($/1M)"
+    "", "Rank", "Model", "Arena Score", "Max Input Tokens", "Max Output Tokens",
+    "Input Cost ($/1M)", "Output Cost ($/1M)", "Organization", "Provider", "License"
   ];
 
   const dataKeys = [
-    "", "Rank* (UB)", "Model", "Arena Score", "Organization", "License",
-    "max_input_tokens", "max_output_tokens", "litellm_provider",
-    "input_cost_per_million_tokens ($)", "output_cost_per_million_tokens ($)"
+    "", "Rank* (UB)", "Model", "Arena Score", "max_input_tokens", "max_output_tokens",
+    "input_cost_per_million_tokens ($)", "output_cost_per_million_tokens ($)", "Organization", "litellm_provider", "License"
   ];
 
   // 👇 Only add this column if costs were computed
