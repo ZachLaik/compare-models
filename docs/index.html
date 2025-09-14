@@ -14,12 +14,16 @@
 
     <div class="top-bar">
       <div class="left-controls">
-        <label for="search">🔎 Search model name:</label>
-        <input type="text" id="search" placeholder="e.g. gpt-4o, llama, mistral" />
-        <button id="compare-button">Compare Selected Models</button>
+        <div class="search-section">
+          <label for="search">🔎 Search model name:</label>
+          <div class="search-input-row">
+            <input type="text" id="search" placeholder="e.g. gpt-4o, llama, mistral" />
+            <button id="compare-button">Compare Selected Models</button>
+          </div>
+        </div>
         
         <div class="view-all-toggle">
-          <label for="view-all-providers" style="display: inline-flex; align-items: center; gap: 8px;">
+          <label for="view-all-providers">
             <input type="checkbox" id="view-all-providers" />
             View all providers (show duplicates)
           </label>

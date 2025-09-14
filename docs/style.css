@@ -10,7 +10,40 @@ body {
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 16px;
+  padding: 24px 16px;
+}
+
+/* Typography and header styling */
+h1 {
+  text-align: center;
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0 0 16px 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  letter-spacing: -0.02em;
+}
+
+.container > p {
+  text-align: center;
+  font-size: 1.1rem;
+  color: #b0b0b0;
+  margin: 0 0 32px 0;
+  line-height: 1.5;
+}
+
+.container > p a {
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.container > p a:hover {
+  color: #764ba2;
+  text-decoration: underline;
 }
 
 /* Base input and button styles */
@@ -27,41 +60,96 @@ input, button {
 /* Top bar grid layout */
 .top-bar {
   display: grid;
-  grid-template-columns: 1fr minmax(260px, 360px);
-  gap: 16px;
+  grid-template-columns: 1fr minmax(280px, 380px);
+  gap: 24px;
   align-items: start;
-  margin: 20px 0;
+  margin: 0 0 32px 0;
+  padding: 24px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
 }
 
 /* Left controls layout */
 .left-controls {
-  display: grid;
-  grid-template-columns: minmax(260px, 420px) auto;
-  grid-template-rows: auto auto;
-  gap: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.search-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.search-section label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #e3e3e3;
+  margin: 0;
+}
+
+.search-input-row {
+  display: flex;
+  gap: 12px;
   align-items: center;
 }
 
-.left-controls label {
-  grid-column: 1 / -1;
-  margin: 0;
+.left-controls #search {
+  flex: 1;
+  min-width: 0;
+  padding: 12px 16px;
+  font-size: 1rem;
+  border-radius: 12px;
+  border: 1px solid #555;
+  background: #3a3a3a;
+  color: #fff;
+  transition: all 0.2s ease;
 }
 
-.left-controls #search {
-  margin: 0;
-  width: 100%;
+.left-controls #search:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
 .left-controls #compare-button {
-  margin: 0;
-  width: auto;
-  padding: 8px 16px;
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
   white-space: nowrap;
 }
 
+.left-controls #compare-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
 .view-all-toggle {
-  grid-column: 1 / -1;
-  margin: 4px 0;
+  margin: 0;
+}
+
+.view-all-toggle label {
+  font-size: 0.95rem;
+  color: #b0b0b0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.view-all-toggle input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin: 0;
 }
 
 table {
@@ -163,41 +251,81 @@ tr:hover {
 
 .cost-calculator {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 10px 12px;
-  border-radius: 10px;
+  padding: 20px;
+  border-radius: 16px;
   margin: 0;
-  border: 1px solid #8a94c7;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
-  min-width: 260px;
-  max-width: 360px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(102, 126, 234, 0.2);
+  min-width: 280px;
+  max-width: 380px;
+  backdrop-filter: blur(10px);
 }
 
 .cost-calculator h3 {
-  margin: 0 0 8px 0;
+  margin: 0 0 16px 0;
   color: #ffffff;
-  font-size: 0.95em;
-  font-weight: 600;
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: -0.01em;
 }
 
 .calculator-inputs {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: auto auto auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
   gap: 6px;
-  align-items: center;
 }
 
-.calculator-inputs .input-group:nth-child(1) {
-  grid-column: 1 / -1;
+.input-group label {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
+  margin: 0;
 }
 
-.calculator-inputs .input-group:nth-child(2) {
-  grid-column: 1 / -1;
+.input-group input {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 1rem;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  border-radius: 8px;
+  transition: all 0.2s ease;
 }
 
-.calculator-inputs button {
-  grid-column: 1 / -1;
-  justify-self: center;
+.input-group input:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.2);
+}
+
+#calculate-costs {
+  background-color: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin: 0;
+  width: 100%;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+#calculate-costs:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-1px);
 }
 
 .input-group {
@@ -206,42 +334,12 @@ tr:hover {
   gap: 8px;
 }
 
-.input-group label {
-  font-size: 0.8em;
-  color: #ffffff;
-  font-weight: 500;
-  white-space: nowrap;
-  margin-right: 8px;
-}
 
-.input-group input {
-  width: 72px;
-  margin: 0;
-  padding: 4px 6px;
-  font-size: 0.85em;
-  background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: #ffffff;
-  border-radius: 6px;
-}
 
 .input-group input::placeholder {
   color: rgba(255, 255, 255, 0.7);
 }
 
-#calculate-costs {
-  background-color: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: white;
-  padding: 4px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  margin: 0;
-  width: auto;
-  font-size: 0.85em;
-  font-weight: 500;
-  transition: all 0.2s ease;
-}
 
 #calculate-costs:hover {
   background-color: rgba(255, 255, 255, 0.3);
@@ -256,34 +354,48 @@ tr:hover {
 
 /* Responsive breakpoints */
 @media (max-width: 768px) {
-  .top-bar {
-    grid-template-columns: 1fr;
-    gap: 12px;
+  .container {
+    padding: 16px 12px;
   }
   
-  .left-controls {
+  h1 {
+    font-size: 2rem;
+  }
+  
+  .container > p {
+    font-size: 1rem;
+    margin-bottom: 24px;
+  }
+  
+  .top-bar {
     grid-template-columns: 1fr;
-    gap: 8px;
+    gap: 20px;
+    padding: 20px;
+  }
+  
+  .search-input-row {
+    flex-direction: column;
+    gap: 12px;
   }
   
   .left-controls #search,
   .left-controls #compare-button {
     width: 100%;
-    margin: 4px 0;
   }
   
   .cost-calculator {
     min-width: auto;
     max-width: none;
   }
-  
-  .calculator-inputs {
-    grid-template-columns: 1fr;
+}
+
+@media (max-width: 480px) {
+  h1 {
+    font-size: 1.75rem;
   }
   
-  .calculator-inputs .input-group,
-  .calculator-inputs button {
-    grid-column: 1;
+  .top-bar {
+    padding: 16px;
   }
 }
 
