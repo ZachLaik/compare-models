@@ -77,6 +77,8 @@ body {
   border: 1px solid #374151;
   padding: 24px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+  min-width: 0;
 }
 
 .card-header {
@@ -104,11 +106,13 @@ body {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  width: 100%;
 }
 
 /* Search Card */
 #search {
   width: 100%;
+  box-sizing: border-box;
   padding: 12px 16px;
   background: #374151;
   border: 1px solid #4b5563;
@@ -150,6 +154,7 @@ body {
 
 #compare-button {
   width: 100%;
+  box-sizing: border-box;
   padding: 12px 16px;
   background: #374151;
   border: 1px solid #4b5563;
@@ -182,6 +187,7 @@ body {
 
 .input-group input {
   width: 100%;
+  box-sizing: border-box;
   padding: 12px 16px;
   background: #374151;
   border: 1px solid #4b5563;
@@ -199,6 +205,7 @@ body {
 
 #calculate-costs {
   width: 100%;
+  box-sizing: border-box;
   padding: 12px 16px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border: none;
