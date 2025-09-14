@@ -5,7 +5,7 @@ channel = "stable-25_05"
 packages = ["glibcLocales"]
 
 [workflows]
-runButton = "Preview"
+runButton = "Project"
 
 [[workflows.workflow]]
 name = "Preview"
@@ -16,6 +16,31 @@ mode = "sequential"
 task = "shell.exec"
 args = "python3 -m http.server 5000 --directory docs"
 
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "WebServer"
+
+[[workflows.workflow]]
+name = "WebServer"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd docs && python3 -m http.server 5000 --bind 0.0.0.0"
+waitForPort = 5000
+
+[workflows.workflow.metadata]
+outputType = "webview"
+
 [[ports]]
 localPort = 5000
 externalPort = 80
+
+[[ports]]
+localPort = 39583
+externalPort = 3000

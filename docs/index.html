@@ -6,46 +6,53 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>🧠 Compare LLMs from Chatbot Arena</h1>
-  <p>
-    Data from <a href="https://openlm.ai/chatbot-arena/" target="_blank">OpenLM.ai Chatbot Arena+</a> (aggregated benchmarks) and <a href="https://github.com/BerriAI/litellm" target="_blank">LiteLLM</a> (pricing).
-  </p>
+  <div class="container">
+    <h1>🧠 Compare LLMs from Chatbot Arena</h1>
+    <p>
+      Data from <a href="https://openlm.ai/chatbot-arena/" target="_blank">OpenLM.ai Chatbot Arena+</a> (aggregated benchmarks) and <a href="https://github.com/BerriAI/litellm" target="_blank">LiteLLM</a> (pricing).
+    </p>
 
-  <label for="search">🔎 Search model name:</label>
-  <input type="text" id="search" placeholder="e.g. gpt-4o, llama, mistral" />
-  
-  <div style="margin: 10px 0;">
-    <label for="view-all-providers" style="display: inline-flex; align-items: center; gap: 8px;">
-      <input type="checkbox" id="view-all-providers" />
-      View all providers (show duplicates)
-    </label>
-  </div>
+    <div class="top-bar">
+      <div class="left-controls">
+        <label for="search">🔎 Search model name:</label>
+        <input type="text" id="search" placeholder="e.g. gpt-4o, llama, mistral" />
+        <button id="compare-button">Compare Selected Models</button>
+        
+        <div class="view-all-toggle">
+          <label for="view-all-providers" style="display: inline-flex; align-items: center; gap: 8px;">
+            <input type="checkbox" id="view-all-providers" />
+            View all providers (show duplicates)
+          </label>
+        </div>
+      </div>
 
-  <div class="cost-calculator">
-    <h3>💰 Cost Calculator</h3>
-    <div class="calculator-inputs">
-      <div class="input-group">
-        <label for="input-tokens">Input Tokens (Millions):</label>
-        <input type="number" id="input-tokens" value="1" min="0" step="0.1" />
-      </div>
-      <div class="input-group">
-        <label for="output-tokens">Output Tokens (Millions):</label>
-        <input type="number" id="output-tokens" value="0.1" min="0" step="0.1" />
-      </div>
-      <button id="calculate-costs">Calculate Costs</button>
+      <aside class="cost-calculator">
+        <h3>💰 Cost Calculator</h3>
+        <div class="calculator-inputs">
+          <div class="input-group">
+            <label for="input-tokens">Input Tokens (Millions):</label>
+            <input type="number" id="input-tokens" value="1" min="0" step="0.1" />
+          </div>
+          <div class="input-group">
+            <label for="output-tokens">Output Tokens (Millions):</label>
+            <input type="number" id="output-tokens" value="0.1" min="0" step="0.1" />
+          </div>
+          <button id="calculate-costs">Calculate Costs</button>
+        </div>
+      </aside>
     </div>
-  </div>
-  
-  <button id="compare-button">Compare Selected Models</button>
 
-  <div class="table-wrapper">
-    <div id="table-container"></div>
-  </div>
+    <main>
+      <div class="table-wrapper">
+        <div id="table-container"></div>
+      </div>
+    </main>
 
-  <footer>
-    <p><strong>Data Source:</strong> <a href="https://openlm.ai/chatbot-arena/" target="_blank">OpenLM.ai Chatbot Arena+</a> leaderboard</p>
-    <p>Model pricing via <a href="https://github.com/BerriAI/litellm" target="_blank">LiteLLM</a> (MIT License)</p>
-  </footer>
+    <footer>
+      <p><strong>Data Source:</strong> <a href="https://openlm.ai/chatbot-arena/" target="_blank">OpenLM.ai Chatbot Arena+</a> leaderboard</p>
+      <p>Model pricing via <a href="https://github.com/BerriAI/litellm" target="_blank">LiteLLM</a> (MIT License)</p>
+    </footer>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <script src="script.js"></script>
