@@ -116,21 +116,22 @@ input, button {
 }
 
 .left-controls #compare-button {
-  padding: 12px 24px;
-  font-size: 1rem;
+  padding: 8px 16px;
+  font-size: 0.9rem;
   font-weight: 600;
-  border-radius: 12px;
+  border-radius: 8px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border: none;
+  border: 1px solid rgba(255, 255, 255, 0.2);
   color: white;
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .left-controls #compare-button:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .view-all-toggle {
@@ -251,21 +252,21 @@ tr:hover {
 
 .cost-calculator {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 20px;
-  border-radius: 16px;
+  padding: 12px 16px;
+  border-radius: 12px;
   margin: 0;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 32px rgba(102, 126, 234, 0.2);
-  min-width: 280px;
-  max-width: 380px;
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.2);
+  min-width: 300px;
+  max-width: 320px;
   backdrop-filter: blur(10px);
 }
 
 .cost-calculator h3 {
-  margin: 0 0 16px 0;
+  margin: 0 0 12px 0;
   color: #ffffff;
-  font-size: 1.1rem;
-  font-weight: 700;
+  font-size: 1rem;
+  font-weight: 600;
   text-align: center;
   letter-spacing: -0.01em;
 }
@@ -273,59 +274,67 @@ tr:hover {
 .calculator-inputs {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 8px;
 }
 
-.input-group {
+.input-row {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
+  align-items: center;
+  gap: 8px;
 }
 
-.input-group label {
-  font-size: 0.9rem;
+.input-row label {
+  font-size: 0.8rem;
   color: rgba(255, 255, 255, 0.9);
   font-weight: 500;
   margin: 0;
+  min-width: 60px;
+  text-align: right;
 }
 
-.input-group input {
-  width: 100%;
-  padding: 10px 12px;
-  font-size: 1rem;
+.input-row input {
+  width: 60px;
+  padding: 6px 8px;
+  font-size: 0.9rem;
   background: rgba(255, 255, 255, 0.15);
   border: 1px solid rgba(255, 255, 255, 0.2);
   color: #ffffff;
-  border-radius: 8px;
+  border-radius: 6px;
   transition: all 0.2s ease;
+  text-align: center;
 }
 
-.input-group input:focus {
+.input-row input:focus {
   outline: none;
   border-color: rgba(255, 255, 255, 0.4);
   background: rgba(255, 255, 255, 0.2);
 }
 
+.input-row .unit {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0;
+  white-space: nowrap;
+}
+
 #calculate-costs {
-  background-color: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   color: white;
-  padding: 12px 20px;
+  padding: 8px 16px;
   border-radius: 8px;
   cursor: pointer;
-  margin: 0;
+  margin: 4px 0 0 0;
   width: 100%;
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: 600;
   transition: all 0.2s ease;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 #calculate-costs:hover {
-  background-color: rgba(255, 255, 255, 0.3);
-  border-color: rgba(255, 255, 255, 0.5);
   transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .input-group {
