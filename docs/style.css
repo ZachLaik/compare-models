@@ -272,38 +272,38 @@ td {
 
 /* Checkbox column */
 th:first-child, td:first-child {
-  width: 30px;
+  width: 25px;
   text-align: center;
   padding: 8px 4px;
 }
 
 /* Rank column */
 th:nth-child(2), td:nth-child(2) {
-  width: 45px;
+  width: 40px;
   text-align: center;
   font-weight: 600;
 }
 
 /* Model name */
 th:nth-child(3), td:nth-child(3) {
-  max-width: 120px;
-  min-width: 100px;
+  max-width: 110px;
+  min-width: 90px;
   font-weight: 500;
 }
 
-/* Arena Score */
+/* Score */
 th:nth-child(4), td:nth-child(4) {
   color: #667eea;
   font-weight: 600;
   text-align: center;
-  width: 70px;
+  width: 55px;
 }
 
 /* Token columns */
 th:nth-child(5), td:nth-child(5),
 th:nth-child(6), td:nth-child(6) {
   text-align: right;
-  width: 80px;
+  width: 60px;
   font-size: 12px;
 }
 
@@ -311,26 +311,26 @@ th:nth-child(6), td:nth-child(6) {
 th:nth-child(7), td:nth-child(7),
 th:nth-child(8), td:nth-child(8) {
   text-align: right;
-  width: 70px;
+  width: 55px;
   font-size: 12px;
 }
 
 /* Organization */
 th:nth-child(9), td:nth-child(9) {
-  max-width: 80px;
-  min-width: 60px;
+  max-width: 60px;
+  min-width: 45px;
 }
 
 /* Provider */
 th:nth-child(10), td:nth-child(10) {
-  max-width: 70px;
-  min-width: 50px;
+  max-width: 60px;
+  min-width: 45px;
 }
 
 /* License */
 th:nth-child(11), td:nth-child(11) {
-  max-width: 80px;
-  min-width: 60px;
+  max-width: 65px;
+  min-width: 50px;
 }
 
 .calculated-cost {

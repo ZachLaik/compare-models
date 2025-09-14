@@ -19,8 +19,8 @@ function createTable(data) {
   console.log("Creating table with", data.length, "rows");
 
   const headers = [
-    "", "Rank", "Model", "Arena Score", "Max Input Tokens", "Max Output Tokens",
-    "Input Cost ($/1M)", "Output Cost ($/1M)", "Organization", "Provider", "License"
+    "", "Rank", "Model", "Score", "Max In", "Max Out",
+    "In Cost", "Out Cost", "Org", "Provider", "License"
   ];
 
   const dataKeys = [
