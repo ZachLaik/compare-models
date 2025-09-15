@@ -335,7 +335,7 @@ th:nth-child(11), td:nth-child(11) {
 
 /* Try column */
 th:nth-child(12), td:nth-child(12) {
-  width: 45px;
+  width: 85px;
   text-align: center;
   padding: 4px;
 }
@@ -348,22 +348,25 @@ th:nth-child(12), td:nth-child(12) {
 
 /* Try Blend Button */
 .try-blend-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border: none;
+  background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%);
+  border: 1px solid #ff6b35;
   border-radius: 4px;
-  color: white;
-  padding: 4px 8px;
-  font-size: 10px;
-  font-weight: 600;
+  color: #1a1a1a;
+  padding: 4px 6px;
+  font-size: 9px;
+  font-weight: 700;
   cursor: pointer;
   transition: all 0.2s ease;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
 }
 
 .try-blend-btn:hover {
+  background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
   transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 2px 8px rgba(255, 107, 53, 0.4);
+  border-color: #ff8c42;
 }
 
 /* Footer */

@@ -82,7 +82,7 @@ function createTable(data) {
           const blendURL = `https://tryblend.ai/?model=openrouter:${openRouterID}`;
           
           const button = document.createElement("button");
-          button.textContent = "Try";
+          button.textContent = "Try in Blend";
           button.className = "try-blend-btn";
           button.onclick = () => window.open(blendURL, '_blank');
           td.appendChild(button);
