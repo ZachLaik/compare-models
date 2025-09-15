@@ -20,12 +20,12 @@ function createTable(data) {
 
   const headers = [
     "", "Rank", "Model", "Score", "Max In", "Max Out",
-    "In Cost", "Out Cost", "Org", "Provider", "License"
+    "In Cost", "Out Cost", "Org", "Provider", "License", "Try"
   ];
 
   const dataKeys = [
     "", "Rank* (UB)", "Model", "Arena Score", "max_input_tokens", "max_output_tokens",
-    "input_cost_per_million_tokens ($)", "output_cost_per_million_tokens ($)", "Organization", "litellm_provider", "License"
+    "input_cost_per_million_tokens ($)", "output_cost_per_million_tokens ($)", "Organization", "litellm_provider", "License", "__try_blend__"
   ];
 
   // 👇 Only add this column if costs were computed
@@ -64,6 +64,28 @@ function createTable(data) {
         if (c) {
           td.textContent = `$${c.totalCost.toFixed(4)}`;
           td.classList.add("calculated-cost");
+        } else {
+          td.textContent = "—";
+        }
+        return;
+      }
+
+      if (key === "__try_blend__") {
+        const modelName = row["Model"];
+        const organization = row["Organization"];
+        
+        if (modelName && organization) {
+          // Construct OpenRouter ID format: organization/model-name
+          const orgSlug = organization.toLowerCase().replace(/\s+/g, '');
+          const modelSlug = modelName.toLowerCase().replace(/\s+/g, '-');
+          const openRouterID = `${orgSlug}/${modelSlug}`;
+          const blendURL = `https://tryblend.ai/?model=openrouter:${openRouterID}`;
+          
+          const button = document.createElement("button");
+          button.textContent = "Try";
+          button.className = "try-blend-btn";
+          button.onclick = () => window.open(blendURL, '_blank');
+          td.appendChild(button);
         } else {
           td.textContent = "—";
         }

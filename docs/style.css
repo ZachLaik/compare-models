@@ -333,10 +333,37 @@ th:nth-child(11), td:nth-child(11) {
   min-width: 50px;
 }
 
+/* Try column */
+th:nth-child(12), td:nth-child(12) {
+  width: 45px;
+  text-align: center;
+  padding: 4px;
+}
+
 .calculated-cost {
   background-color: #065f46 !important;
   color: #10b981 !important;
   font-weight: 600;
+}
+
+/* Try Blend Button */
+.try-blend-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 4px;
+  color: white;
+  padding: 4px 8px;
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.try-blend-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
 }
 
 /* Footer */
