@@ -18,6 +18,12 @@ let calculatedCosts = null;
 function createTable(data) {
   console.log("Creating table with", data.length, "rows");
 
+  // Save currently checked models before recreating table
+  const previouslyChecked = new Set();
+  document.querySelectorAll('.model-checkbox:checked').forEach(cb => {
+    previouslyChecked.add(cb.dataset.model);
+  });
+
   const headers = [
     "", "Rank", "Model", "Score", "Max In", "Max Out",
     "In Cost", "Out Cost", "Org", "Provider", "License", "Try"
@@ -54,6 +60,10 @@ function createTable(data) {
         checkbox.type = "checkbox";
         checkbox.className = "model-checkbox";
         checkbox.dataset.model = row["Model"];
+        // Restore previously checked state
+        if (previouslyChecked.has(row["Model"])) {
+          checkbox.checked = true;
+        }
         td.appendChild(checkbox);
         return;
       }
@@ -61,11 +71,11 @@ function createTable(data) {
       if (key === "__calc_total__") {
         const m = row["Model"];
         const c = calculatedCosts?.[m];
-        if (c) {
+        if (c && c.hasValidPricing) {
           td.textContent = `$${c.totalCost.toFixed(4)}`;
           td.classList.add("calculated-cost");
         } else {
-          td.textContent = "—";
+          td.textContent = "N/A";
         }
         return;
       }
@@ -174,16 +184,25 @@ function calculateCosts() {
 
   fullData.forEach(row => {
     const modelName = row["Model"];
-    const inputCostPerMillion = parseFloat(row["input_cost_per_million_tokens ($)"]) || 0;
-    const outputCostPerMillion = parseFloat(row["output_cost_per_million_tokens ($)"]) || 0;
+    const rawInputCost = row["input_cost_per_million_tokens ($)"];
+    const rawOutputCost = row["output_cost_per_million_tokens ($)"];
+    
+    const inputCostPerMillion = parseFloat(rawInputCost);
+    const outputCostPerMillion = parseFloat(rawOutputCost);
+    
+    // Check if the model has valid pricing data (not empty, not NaN, and not zero)
+    const hasValidInputCost = rawInputCost && rawInputCost.trim() !== "" && Number.isFinite(inputCostPerMillion);
+    const hasValidOutputCost = rawOutputCost && rawOutputCost.trim() !== "" && Number.isFinite(outputCostPerMillion);
+    const hasValidPricing = hasValidInputCost || hasValidOutputCost;
 
-    const totalInputCost = inputCostPerMillion * inputTokens;
-    const totalOutputCost = outputCostPerMillion * outputTokens;
+    const totalInputCost = (hasValidInputCost ? inputCostPerMillion : 0) * inputTokens;
+    const totalOutputCost = (hasValidOutputCost ? outputCostPerMillion : 0) * outputTokens;
 
     calculatedCosts[modelName] = {
       totalInputCost,
       totalOutputCost,
-      totalCost: totalInputCost + totalOutputCost
+      totalCost: totalInputCost + totalOutputCost,
+      hasValidPricing
     };
   });
 
