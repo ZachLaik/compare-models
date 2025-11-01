@@ -14,7 +14,43 @@ let isCompareMode = false;
 let showAllProviders = false;
 let calculatedCosts = null;
 let selectedModels = new Set(); // Track selected models globally
+let currentSort = { key: null, ascending: true }; // Track current sort state
 
+// Sort data by a specific column
+function sortData(data, sortKey) {
+  return [...data].sort((a, b) => {
+    let aVal = a[sortKey];
+    let bVal = b[sortKey];
+    
+    // Handle calculated costs specially
+    if (sortKey === "__calc_total__") {
+      aVal = calculatedCosts?.[a.Model]?.totalCost ?? -Infinity;
+      bVal = calculatedCosts?.[b.Model]?.totalCost ?? -Infinity;
+    } else {
+      // Parse numeric values
+      const aNum = parseFloat(aVal);
+      const bNum = parseFloat(bVal);
+      
+      if (Number.isFinite(aNum) && Number.isFinite(bNum)) {
+        aVal = aNum;
+        bVal = bNum;
+      }
+    }
+    
+    // Handle N/A or missing values (put them at the end)
+    if (aVal === null || aVal === undefined || aVal === "" || !Number.isFinite(aVal)) {
+      return 1;
+    }
+    if (bVal === null || bVal === undefined || bVal === "" || !Number.isFinite(bVal)) {
+      return -1;
+    }
+    
+    // Compare values
+    if (aVal < bVal) return currentSort.ascending ? -1 : 1;
+    if (aVal > bVal) return currentSort.ascending ? 1 : -1;
+    return 0;
+  });
+}
 
 function createTable(data) {
   console.log("Creating table with", data.length, "rows");
@@ -39,9 +75,49 @@ function createTable(data) {
   const table = document.createElement("table");
   const thead = table.createTHead();
   const headerRow = thead.insertRow();
-  headers.forEach(h => {
+  
+  // Define sortable columns
+  const sortableColumns = {
+    "Score": "Arena Score",
+    "Max In": "max_input_tokens",
+    "Max Out": "max_output_tokens",
+    "In Cost": "input_cost_per_million_tokens ($)",
+    "Out Cost": "output_cost_per_million_tokens ($)",
+    "Est. Total Cost": "__calc_total__"
+  };
+  
+  headers.forEach((h, index) => {
     const th = document.createElement("th");
-    th.textContent = h;
+    const dataKey = dataKeys[index];
+    
+    // Make column sortable if it's in the sortable list
+    if (sortableColumns[h]) {
+      th.style.cursor = "pointer";
+      th.classList.add("sortable");
+      
+      // Add sort indicator
+      let sortIndicator = "";
+      if (currentSort.key === sortableColumns[h]) {
+        sortIndicator = currentSort.ascending ? " ▲" : " ▼";
+      }
+      th.textContent = h + sortIndicator;
+      
+      // Add click handler
+      th.addEventListener("click", () => {
+        if (currentSort.key === sortableColumns[h]) {
+          currentSort.ascending = !currentSort.ascending;
+        } else {
+          currentSort.key = sortableColumns[h];
+          currentSort.ascending = false; // Default to descending (highest first)
+        }
+        
+        const sortedData = sortData(data, currentSort.key);
+        createTable(sortedData);
+      });
+    } else {
+      th.textContent = h;
+    }
+    
     headerRow.appendChild(th);
   });
 
@@ -77,7 +153,7 @@ function createTable(data) {
         const m = row["Model"];
         const c = calculatedCosts?.[m];
         if (c && c.hasValidPricing) {
-          td.textContent = `$${c.totalCost.toFixed(4)}`;
+          td.textContent = `$${c.totalCost.toFixed(2)}`;
           td.classList.add("calculated-cost");
         } else {
           td.textContent = "N/A";
