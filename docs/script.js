@@ -16,6 +16,15 @@ let calculatedCosts = null;
 let selectedModels = new Set(); // Track selected models globally
 let currentSort = { key: null, ascending: true }; // Track current sort state
 
+// Format number with spaces for thousands separator
+function formatCurrency(amount) {
+  const fixed = amount.toFixed(2);
+  const parts = fixed.split('.');
+  // Add space every 3 digits from the right
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  return `$${parts.join('.')}`;
+}
+
 // Sort data by a specific column
 function sortData(data, sortKey) {
   return [...data].sort((a, b) => {
@@ -153,7 +162,7 @@ function createTable(data) {
         const m = row["Model"];
         const c = calculatedCosts?.[m];
         if (c && c.hasValidPricing) {
-          td.textContent = `$${c.totalCost.toFixed(2)}`;
+          td.textContent = formatCurrency(c.totalCost);
           td.classList.add("calculated-cost");
         } else {
           td.textContent = "N/A";
@@ -411,7 +420,7 @@ fetch(CSV_URL)
         };
         
         modalTitle.textContent = btn.dataset.name;
-        modalSubtitle.textContent = 'How would you like to use this dataset?';
+        modalSubtitle.textContent = 'How much would it cost to :';
         modal.classList.add('active');
       });
     });

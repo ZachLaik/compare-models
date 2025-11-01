@@ -516,6 +516,7 @@ footer a:hover {
   font-size: 20px;
   font-weight: 600;
   color: #ffffff;
+  text-align: center;
 }
 
 .modal-header p {
