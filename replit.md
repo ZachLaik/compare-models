@@ -9,6 +9,9 @@ Compare Models is a daily-updated leaderboard system that aggregates LLM perform
   - **Read**: Calculates input cost only (processing existing text)
   - **Write**: Calculates output cost only (generating new text)
   - **Summarize**: Calculates input cost + 30% output cost (reading and summarizing)
+- **Currency Formatting**: Large numbers display with space separators (e.g., $30 000 000.00) for better readability
+- **Hide N/A Models**: When costs are calculated, models without pricing are automatically hidden. Toggle "Show models without pricing" checkbox to view them
+- **Fixed Scenario Values**: Corrected token amounts for NYT Archive (25B), U.S. Law (24B), Google Code (24B), and World Law (300B) scenarios
 - **Sortable Columns**: Click column headers to sort by Score, Max In/Out tokens, In/Out costs, and Total Cost
 - **Persistent Selection**: Selected models remain visible even when filtered out by search
 - **Cost Display**: Shows "N/A" instead of $0.00 for models without pricing data

@@ -5,6 +5,7 @@ const searchInput = document.getElementById("search");
 const tableContainer = document.getElementById("table-container");
 const compareButton = document.getElementById("compare-button");
 const viewAllProvidersToggle = document.getElementById("view-all-providers");
+const showNAModelsToggle = document.getElementById("show-na-models");
 const inputTokensInput = document.getElementById("input-tokens");
 const outputTokensInput = document.getElementById("output-tokens");
 const calculateButton = document.getElementById("calculate-costs");
@@ -12,6 +13,7 @@ const calculateButton = document.getElementById("calculate-costs");
 let fullData = [];
 let isCompareMode = false;
 let showAllProviders = false;
+let showNAModels = true; // Show by default, hide when costs are calculated
 let calculatedCosts = null;
 let selectedModels = new Set(); // Track selected models globally
 let currentSort = { key: null, ascending: true }; // Track current sort state
@@ -64,6 +66,16 @@ function sortData(data, sortKey) {
 function createTable(data) {
   console.log("Creating table with", data.length, "rows");
   console.log("Currently selected models:", Array.from(selectedModels));
+
+  // Filter out N/A total cost rows if showNAModels is false and costs are calculated
+  if (!showNAModels && calculatedCosts && Object.keys(calculatedCosts).length) {
+    data = data.filter(row => {
+      const m = row["Model"];
+      const c = calculatedCosts?.[m];
+      return c && c.hasValidPricing;
+    });
+    console.log("Filtered to", data.length, "rows (hiding N/A total costs)");
+  }
 
   const headers = [
     "", "Rank", "Model", "Score", "Max In", "Max Out",
@@ -301,6 +313,12 @@ function calculateCosts() {
     };
   });
 
+  // Auto-hide N/A models when costs are calculated for the first time
+  if (showNAModels) {
+    showNAModels = false;
+    showNAModelsToggle.checked = false;
+  }
+
   // Refresh the current table view
   if (isCompareMode) {
     compareSelectedModels();
@@ -378,6 +396,15 @@ fetch(CSV_URL)
 
     viewAllProvidersToggle.addEventListener("change", () => {
       showAllProviders = viewAllProvidersToggle.checked;
+      if (!isCompareMode) {
+        const filtered = filterData(fullData, searchInput.value);
+        const processedFiltered = removeDuplicateModels(filtered);
+        createTable(processedFiltered);
+      }
+    });
+
+    showNAModelsToggle.addEventListener("change", () => {
+      showNAModels = showNAModelsToggle.checked;
       if (!isCompareMode) {
         const filtered = filterData(fullData, searchInput.value);
         const processedFiltered = removeDuplicateModels(filtered);

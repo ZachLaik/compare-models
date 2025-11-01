@@ -36,6 +36,10 @@
             <input type="checkbox" id="view-all-providers" />
             <label for="view-all-providers">View all providers (show duplicates)</label>
           </div>
+          <div class="checkbox-container">
+            <input type="checkbox" id="show-na-models" />
+            <label for="show-na-models">Show models without pricing</label>
+          </div>
           
           <button id="compare-button">Compare Selected Models</button>
         </div>
@@ -84,12 +88,12 @@
           <span class="scenario-name">Twitter/X (year)</span>
           <span class="scenario-size">3.6T tokens</span>
         </button>
-        <button class="scenario-btn" data-input="25" data-output="0" data-name="New York Times (archive)">
+        <button class="scenario-btn" data-input="25000" data-output="0" data-name="New York Times (archive)">
           <span class="scenario-emoji">📰</span>
           <span class="scenario-name">NYT Archive</span>
           <span class="scenario-size">25B tokens</span>
         </button>
-        <button class="scenario-btn" data-input="24" data-output="0" data-name="U.S. law (total)">
+        <button class="scenario-btn" data-input="24000" data-output="0" data-name="U.S. law (total)">
           <span class="scenario-emoji">🇺🇸</span>
           <span class="scenario-name">U.S. Law</span>
           <span class="scenario-size">24B tokens</span>
@@ -99,12 +103,12 @@
           <span class="scenario-name">Bible (KJV)</span>
           <span class="scenario-size">1M tokens</span>
         </button>
-        <button class="scenario-btn" data-input="24" data-output="0" data-name="Google code base">
+        <button class="scenario-btn" data-input="24000" data-output="0" data-name="Google code base">
           <span class="scenario-emoji">🧮</span>
           <span class="scenario-name">Google Code</span>
           <span class="scenario-size">24B tokens</span>
         </button>
-        <button class="scenario-btn" data-input="300" data-output="0" data-name="World law (all jurisdictions)">
+        <button class="scenario-btn" data-input="300000" data-output="0" data-name="World law (all jurisdictions)">
           <span class="scenario-emoji">🌍</span>
           <span class="scenario-name">World Law</span>
           <span class="scenario-size">300B tokens</span>
@@ -159,6 +163,6 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-  <script src="script.js?v=7"></script>
+  <script src="script.js?v=8"></script>
 </body>
 </html>
