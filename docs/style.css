@@ -75,7 +75,7 @@ body {
   background: #2a2d3a;
   border-radius: 16px;
   border: 1px solid #374151;
-  padding: 24px;
+  padding: 16px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   box-sizing: border-box;
   min-width: 0;
@@ -85,8 +85,8 @@ body {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 20px;
-  padding-bottom: 16px;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
   border-bottom: 1px solid #374151;
 }
 
@@ -105,7 +105,7 @@ body {
 .card-content {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
   width: 100%;
 }
 
@@ -377,6 +377,84 @@ th:nth-child(12), td:nth-child(12) {
   transform: translateY(-1px);
   box-shadow: 0 2px 8px rgba(255, 107, 53, 0.4);
   border-color: #ff8c42;
+}
+
+/* Scenarios Section */
+.scenarios-section {
+  background: #2a2d3a;
+  border-radius: 16px;
+  border: 1px solid #374151;
+  padding: 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.scenarios-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.scenarios-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.scenarios-header p {
+  margin: 0 0 0 auto;
+  font-size: 13px;
+  color: #9ca3af;
+}
+
+.scenarios-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+.scenario-btn {
+  background: #374151;
+  border: 1px solid #4b5563;
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #e5e7eb;
+  font-size: 13px;
+}
+
+.scenario-btn:hover {
+  background: #4b5563;
+  border-color: #667eea;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+}
+
+.scenario-btn:active {
+  transform: translateY(0);
+}
+
+.scenario-emoji {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.scenario-name {
+  font-weight: 600;
+  text-align: center;
+  color: #ffffff;
+}
+
+.scenario-size {
+  font-size: 11px;
+  color: #9ca3af;
 }
 
 /* Footer */

@@ -394,6 +394,30 @@ fetch(CSV_URL)
     outputTokensInput.addEventListener("input", () => {
       if (calculatedCosts) calculateCosts();
     });
+
+    // Scenario buttons
+    document.querySelectorAll('.scenario-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const inputTokens = parseFloat(btn.dataset.input);
+        const outputTokens = parseFloat(btn.dataset.output);
+        const scenarioName = btn.dataset.name;
+        
+        // Update input fields
+        inputTokensInput.value = inputTokens;
+        outputTokensInput.value = outputTokens;
+        
+        // Trigger calculation
+        calculateCosts();
+        
+        // Smooth scroll to table
+        document.querySelector('.table-wrapper').scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        });
+        
+        console.log(`Loaded scenario: ${scenarioName}`);
+      });
+    });
   })
   .catch(error => {
     console.error("Error loading CSV:", error);
