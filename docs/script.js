@@ -23,6 +23,7 @@ function createTable(data) {
   document.querySelectorAll('.model-checkbox:checked').forEach(cb => {
     previouslyChecked.add(cb.dataset.model);
   });
+  console.log("Preserving", previouslyChecked.size, "checked models:", Array.from(previouslyChecked));
 
   const headers = [
     "", "Rank", "Model", "Score", "Max In", "Max Out",
