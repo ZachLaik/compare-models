@@ -13,17 +13,12 @@ let fullData = [];
 let isCompareMode = false;
 let showAllProviders = false;
 let calculatedCosts = null;
+let selectedModels = new Set(); // Track selected models globally
 
 
 function createTable(data) {
   console.log("Creating table with", data.length, "rows");
-
-  // Save currently checked models before recreating table
-  const previouslyChecked = new Set();
-  document.querySelectorAll('.model-checkbox:checked').forEach(cb => {
-    previouslyChecked.add(cb.dataset.model);
-  });
-  console.log("Preserving", previouslyChecked.size, "checked models:", Array.from(previouslyChecked));
+  console.log("Currently selected models:", Array.from(selectedModels));
 
   const headers = [
     "", "Rank", "Model", "Score", "Max In", "Max Out",
@@ -61,10 +56,19 @@ function createTable(data) {
         checkbox.type = "checkbox";
         checkbox.className = "model-checkbox";
         checkbox.dataset.model = row["Model"];
-        // Restore previously checked state
-        if (previouslyChecked.has(row["Model"])) {
+        // Restore checked state from global selectedModels
+        if (selectedModels.has(row["Model"])) {
           checkbox.checked = true;
         }
+        // Add event listener to track selections
+        checkbox.addEventListener("change", (e) => {
+          if (e.target.checked) {
+            selectedModels.add(row["Model"]);
+          } else {
+            selectedModels.delete(row["Model"]);
+          }
+          console.log("Selected models:", Array.from(selectedModels));
+        });
         td.appendChild(checkbox);
         return;
       }
@@ -139,11 +143,16 @@ function removeDuplicateModels(data) {
   });
 }
 
-// Filter data
+// Filter data - include selected models even if they don't match the search
 function filterData(data, query) {
-  return data.filter((row) =>
-    row.Model && row.Model.toLowerCase().includes(query.toLowerCase())
-  );
+  if (!query || query.trim() === "") {
+    return data;
+  }
+  return data.filter((row) => {
+    const matchesSearch = row.Model && row.Model.toLowerCase().includes(query.toLowerCase());
+    const isSelected = selectedModels.has(row.Model);
+    return matchesSearch || isSelected;
+  });
 }
 
 // Compare selected models
