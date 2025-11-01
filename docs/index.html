@@ -124,7 +124,41 @@
     </footer>
   </div>
 
+  <!-- Scenario Modal -->
+  <div id="scenario-modal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modal-title">Choose Action</h3>
+        <p id="modal-subtitle">How would you like to use this dataset?</p>
+      </div>
+      <div class="modal-options">
+        <button class="modal-option-btn" data-action="read">
+          <div class="modal-option-title">
+            <span class="modal-option-icon">📖</span>
+            <span>Read</span>
+          </div>
+          <p class="modal-option-desc">Input cost only (processing existing text)</p>
+        </button>
+        <button class="modal-option-btn" data-action="write">
+          <div class="modal-option-title">
+            <span class="modal-option-icon">✍️</span>
+            <span>Write</span>
+          </div>
+          <p class="modal-option-desc">Output cost only (generating new text)</p>
+        </button>
+        <button class="modal-option-btn" data-action="summarize">
+          <div class="modal-option-title">
+            <span class="modal-option-icon">📝</span>
+            <span>Summarize</span>
+          </div>
+          <p class="modal-option-desc">Input + 30% output (read and create summary)</p>
+        </button>
+      </div>
+      <button class="modal-cancel">Cancel</button>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-  <script src="script.js?v=5"></script>
+  <script src="script.js?v=6"></script>
 </body>
 </html>

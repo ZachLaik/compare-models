@@ -395,16 +395,50 @@ fetch(CSV_URL)
       if (calculatedCosts) calculateCosts();
     });
 
-    // Scenario buttons
+    // Modal elements
+    const modal = document.getElementById('scenario-modal');
+    const modalTitle = document.getElementById('modal-title');
+    const modalSubtitle = document.getElementById('modal-subtitle');
+    const modalCancel = document.querySelector('.modal-cancel');
+    let currentScenarioData = null;
+
+    // Scenario buttons - show modal
     document.querySelectorAll('.scenario-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        const inputTokens = parseFloat(btn.dataset.input);
-        const outputTokens = parseFloat(btn.dataset.output);
-        const scenarioName = btn.dataset.name;
+        currentScenarioData = {
+          tokens: parseFloat(btn.dataset.input),
+          name: btn.dataset.name
+        };
         
-        // Update input fields
-        inputTokensInput.value = inputTokens;
-        outputTokensInput.value = outputTokens;
+        modalTitle.textContent = btn.dataset.name;
+        modalSubtitle.textContent = 'How would you like to use this dataset?';
+        modal.classList.add('active');
+      });
+    });
+
+    // Modal option buttons
+    document.querySelectorAll('.modal-option-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const action = btn.dataset.action;
+        const tokens = currentScenarioData.tokens;
+        
+        // Set input/output based on action
+        if (action === 'read') {
+          // Read: input cost only
+          inputTokensInput.value = tokens;
+          outputTokensInput.value = 0;
+        } else if (action === 'write') {
+          // Write: output cost only
+          inputTokensInput.value = 0;
+          outputTokensInput.value = tokens;
+        } else if (action === 'summarize') {
+          // Summarize: input + 30% output
+          inputTokensInput.value = tokens;
+          outputTokensInput.value = tokens * 0.3;
+        }
+        
+        // Close modal
+        modal.classList.remove('active');
         
         // Trigger calculation
         calculateCosts();
@@ -415,8 +449,20 @@ fetch(CSV_URL)
           block: 'start' 
         });
         
-        console.log(`Loaded scenario: ${scenarioName}`);
+        console.log(`Loaded scenario: ${currentScenarioData.name} (${action})`);
       });
+    });
+
+    // Modal cancel button
+    modalCancel.addEventListener('click', () => {
+      modal.classList.remove('active');
+    });
+
+    // Close modal when clicking outside
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.classList.remove('active');
+      }
     });
   })
   .catch(error => {

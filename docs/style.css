@@ -73,9 +73,9 @@ body {
 .search-card,
 .calculator-card {
   background: #2a2d3a;
-  border-radius: 16px;
+  border-radius: 12px;
   border: 1px solid #374151;
-  padding: 16px;
+  padding: 12px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   box-sizing: border-box;
   min-width: 0;
@@ -84,20 +84,20 @@ body {
 .card-header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 12px;
-  padding-bottom: 12px;
+  gap: 10px;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
   border-bottom: 1px solid #374151;
 }
 
 .card-icon {
-  font-size: 20px;
+  font-size: 18px;
   opacity: 0.8;
 }
 
 .card-header h3 {
   margin: 0;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
   color: #ffffff;
 }
@@ -105,7 +105,7 @@ body {
 .card-content {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   width: 100%;
 }
 
@@ -382,9 +382,9 @@ th:nth-child(12), td:nth-child(12) {
 /* Scenarios Section */
 .scenarios-section {
   background: #2a2d3a;
-  border-radius: 16px;
+  border-radius: 12px;
   border: 1px solid #374151;
-  padding: 20px;
+  padding: 14px;
   margin-bottom: 24px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
@@ -392,42 +392,42 @@ th:nth-child(12), td:nth-child(12) {
 .scenarios-header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 16px;
+  gap: 10px;
+  margin-bottom: 12px;
 }
 
 .scenarios-header h3 {
   margin: 0;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
   color: #ffffff;
 }
 
 .scenarios-header p {
   margin: 0 0 0 auto;
-  font-size: 13px;
+  font-size: 12px;
   color: #9ca3af;
 }
 
 .scenarios-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
 }
 
 .scenario-btn {
   background: #374151;
   border: 1px solid #4b5563;
-  border-radius: 12px;
-  padding: 12px;
+  border-radius: 10px;
+  padding: 10px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   cursor: pointer;
   transition: all 0.2s ease;
   color: #e5e7eb;
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .scenario-btn:hover {
@@ -477,6 +477,115 @@ footer a {
 
 footer a:hover {
   text-decoration: underline;
+}
+
+/* Modal */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.75);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-overlay.active {
+  display: flex;
+}
+
+.modal-content {
+  background: #2a2d3a;
+  border: 1px solid #374151;
+  border-radius: 16px;
+  padding: 24px;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+}
+
+.modal-header {
+  margin-bottom: 20px;
+}
+
+.modal-header h3 {
+  margin: 0 0 8px 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.modal-header p {
+  margin: 0;
+  font-size: 14px;
+  color: #9ca3af;
+}
+
+.modal-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.modal-option-btn {
+  background: #374151;
+  border: 2px solid #4b5563;
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.modal-option-btn:hover {
+  background: #4b5563;
+  border-color: #667eea;
+  transform: translateY(-2px);
+}
+
+.modal-option-btn:active {
+  transform: translateY(0);
+}
+
+.modal-option-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.modal-option-icon {
+  font-size: 20px;
+}
+
+.modal-option-desc {
+  font-size: 13px;
+  color: #9ca3af;
+  margin: 0;
+}
+
+.modal-cancel {
+  width: 100%;
+  background: transparent;
+  border: 1px solid #4b5563;
+  border-radius: 8px;
+  padding: 10px;
+  color: #9ca3af;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.modal-cancel:hover {
+  background: #374151;
+  color: #ffffff;
 }
 
 /* Responsive Design */

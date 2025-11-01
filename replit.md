@@ -2,6 +2,18 @@
 
 Compare Models is a daily-updated leaderboard system that aggregates LLM performance data from the Chatbot Arena with pricing information from multiple sources. The application automatically scrapes model rankings from OpenLM.ai's Chatbot Arena+ leaderboard, fetches pricing data from OpenRouter and LiteLLM, and produces a unified CSV dataset. It includes a web interface for searching models, calculating costs, and comparing quality-to-price ratios. The system runs automated daily updates via GitHub Actions to maintain current data.
 
+# Recent Changes (November 2025)
+
+- **Compact UI Design**: Reduced padding and font sizes across all cards and sections for more efficient space usage
+- **Quick Scenarios Modal**: Clicking scenario buttons now opens a modal dialog asking users to choose between:
+  - **Read**: Calculates input cost only (processing existing text)
+  - **Write**: Calculates output cost only (generating new text)
+  - **Summarize**: Calculates input cost + 30% output cost (reading and summarizing)
+- **Sortable Columns**: Click column headers to sort by Score, Max In/Out tokens, In/Out costs, and Total Cost
+- **Persistent Selection**: Selected models remain visible even when filtered out by search
+- **Cost Display**: Shows "N/A" instead of $0.00 for models without pricing data
+- **Reduced Decimal Places**: Total costs display with 2 decimal places instead of 4
+
 # User Preferences
 
 Preferred communication style: Simple, everyday language.
