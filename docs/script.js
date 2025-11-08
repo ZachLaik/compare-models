@@ -191,7 +191,7 @@ function createTable(data) {
           const orgSlug = organization.toLowerCase().replace(/\s+/g, '');
           const modelSlug = modelName.toLowerCase().replace(/\s+/g, '-');
           const openRouterID = `${orgSlug}/${modelSlug}`;
-          const blendURL = `https://tryblend.ai/?model=openrouter:${openRouterID}`;
+          const blendURL = `https://tryblend.ai/?model=openrouter:${openRouterID}&ref=pricecomparisonlive`;
           
           const button = document.createElement("button");
           button.textContent = "Try in Blend";
