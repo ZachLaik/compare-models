@@ -689,6 +689,9 @@ function generateChart() {
           padding: 12,
           displayColors: true,
           callbacks: {
+            title: function(context) {
+              return context[0].dataset.label;
+            },
             label: function(context) {
               const point = context.raw;
               return [
