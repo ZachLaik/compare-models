@@ -644,6 +644,26 @@ function generateChart() {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
+        datalabels: {
+          color: '#ffffff',
+          font: {
+            size: 10,
+            weight: 'bold'
+          },
+          align: 'right',
+          offset: 8,
+          formatter: function(value, context) {
+            return context.dataset.label;
+          },
+          backgroundColor: 'rgba(42, 45, 58, 0.85)',
+          borderRadius: 4,
+          padding: {
+            top: 4,
+            bottom: 4,
+            left: 6,
+            right: 6
+          }
+        },
         title: {
           display: true,
           text: 'Chatbot Arena Score vs API Cost Effectiveness',
