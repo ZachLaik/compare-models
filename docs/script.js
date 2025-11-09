@@ -558,6 +558,21 @@ fetch(CSV_URL)
     tableContainer.innerHTML = "<p>Error loading data. Please try again later.</p>";
   });
 
+// Generate vibrant colors for chart
+function generateColors(count) {
+  const colors = [];
+  const hueStep = 360 / count;
+  
+  for (let i = 0; i < count; i++) {
+    const hue = i * hueStep;
+    const saturation = 70 + (i % 3) * 10;
+    const lightness = 55 + (i % 2) * 10;
+    colors.push(`hsl(${hue}, ${saturation}%, ${lightness}%)`);
+  }
+  
+  return colors;
+}
+
 // Generate chart for selected models
 function generateChart() {
   if (selectedModels.size === 0) {
@@ -565,9 +580,13 @@ function generateChart() {
     return;
   }
 
-  const chartData = [];
+  const datasets = [];
+  const modelArray = Array.from(selectedModels);
+  const colors = generateColors(modelArray.length);
   
-  selectedModels.forEach(modelName => {
+  let validModelCount = 0;
+  
+  modelArray.forEach((modelName, index) => {
     const modelData = fullData.find(row => row.Model === modelName);
     if (!modelData) return;
 
@@ -588,14 +607,25 @@ function generateChart() {
       return;
     }
 
-    chartData.push({
-      x: arenaScore,
-      y: effectiveCost,
-      label: modelName
+    const color = colors[index % colors.length];
+    
+    datasets.push({
+      label: modelName,
+      data: [{
+        x: arenaScore,
+        y: effectiveCost
+      }],
+      backgroundColor: color,
+      borderColor: color,
+      borderWidth: 2,
+      pointRadius: 6,
+      pointHoverRadius: 8
     });
+    
+    validModelCount++;
   });
 
-  if (chartData.length === 0) {
+  if (validModelCount === 0) {
     alert("No valid data found for selected models. Please ensure models have both arena scores and pricing information.");
     return;
   }
@@ -608,15 +638,7 @@ function generateChart() {
   chartInstance = new Chart(ctx, {
     type: 'scatter',
     data: {
-      datasets: [{
-        label: 'Selected Models',
-        data: chartData,
-        backgroundColor: 'rgba(102, 126, 234, 0.6)',
-        borderColor: 'rgba(102, 126, 234, 1)',
-        borderWidth: 2,
-        pointRadius: 6,
-        pointHoverRadius: 8
-      }]
+      datasets: datasets
     },
     options: {
       responsive: true,
@@ -632,7 +654,17 @@ function generateChart() {
           }
         },
         legend: {
-          display: false
+          display: true,
+          position: 'right',
+          labels: {
+            color: '#e3e6ef',
+            font: {
+              size: 11
+            },
+            padding: 8,
+            usePointStyle: true,
+            pointStyle: 'circle'
+          }
         },
         tooltip: {
           backgroundColor: 'rgba(42, 45, 58, 0.95)',
@@ -641,12 +673,11 @@ function generateChart() {
           borderColor: '#667eea',
           borderWidth: 1,
           padding: 12,
-          displayColors: false,
+          displayColors: true,
           callbacks: {
             label: function(context) {
               const point = context.raw;
               return [
-                `Model: ${point.label}`,
                 `Arena Score: ${point.x.toFixed(0)}`,
                 `Avg Cost: $${point.y.toFixed(2)}/M tokens`
               ];
