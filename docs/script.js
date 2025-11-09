@@ -4,6 +4,8 @@ const CSV_URL = "https://raw.githubusercontent.com/ZachLaik/compare-models/main/
 const searchInput = document.getElementById("search");
 const tableContainer = document.getElementById("table-container");
 const compareButton = document.getElementById("compare-button");
+const selectAllButton = document.getElementById("select-all-button");
+const generateChartButton = document.getElementById("generate-chart-button");
 const viewAllProvidersToggle = document.getElementById("view-all-providers");
 const showNAModelsToggle = document.getElementById("show-na-models");
 const inputTokensInput = document.getElementById("input-tokens");
@@ -17,6 +19,7 @@ let showNAModels = true; // Show by default, hide when costs are calculated
 let calculatedCosts = null;
 let selectedModels = new Set(); // Track selected models globally
 let currentSort = { key: null, ascending: true }; // Track current sort state
+let chartInstance = null; // Track Chart.js instance
 
 // Format number with spaces for thousands separator
 function formatCurrency(amount) {
@@ -500,8 +503,185 @@ fetch(CSV_URL)
         modal.classList.remove('active');
       }
     });
+
+    // Select All button functionality
+    selectAllButton.addEventListener('click', () => {
+      const checkboxes = document.querySelectorAll('.model-checkbox');
+      const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+      
+      checkboxes.forEach(checkbox => {
+        checkbox.checked = !allChecked;
+        if (!allChecked) {
+          selectedModels.add(checkbox.dataset.model);
+        } else {
+          selectedModels.delete(checkbox.dataset.model);
+        }
+      });
+      
+      selectAllButton.textContent = allChecked ? "Select All" : "Deselect All";
+      console.log("Selected models:", Array.from(selectedModels));
+    });
+
+    // Generate Chart button functionality
+    generateChartButton.addEventListener('click', generateChart);
+
+    // Chart modal close button
+    const chartModal = document.getElementById('chart-modal');
+    const chartModalCancel = document.getElementById('chart-modal-cancel');
+    
+    chartModalCancel.addEventListener('click', () => {
+      chartModal.classList.remove('active');
+    });
+
+    chartModal.addEventListener('click', (e) => {
+      if (e.target === chartModal) {
+        chartModal.classList.remove('active');
+      }
+    });
   })
   .catch(error => {
     console.error("Error loading CSV:", error);
     tableContainer.innerHTML = "<p>Error loading data. Please try again later.</p>";
   });
+
+// Generate chart for selected models
+function generateChart() {
+  if (selectedModels.size === 0) {
+    alert("Please select at least one model to generate a chart.");
+    return;
+  }
+
+  const chartData = [];
+  
+  selectedModels.forEach(modelName => {
+    const modelData = fullData.find(row => row.Model === modelName);
+    if (!modelData) return;
+
+    const arenaScore = parseFloat(modelData["Arena Score"]);
+    const inputCost = parseFloat(modelData["input_cost_per_million_tokens ($)"]);
+    const outputCost = parseFloat(modelData["output_cost_per_million_tokens ($)"]);
+
+    if (!Number.isFinite(arenaScore)) return;
+
+    let effectiveCost = 0;
+    if (Number.isFinite(inputCost) && Number.isFinite(outputCost)) {
+      effectiveCost = (inputCost + outputCost) / 2;
+    } else if (Number.isFinite(inputCost)) {
+      effectiveCost = inputCost;
+    } else if (Number.isFinite(outputCost)) {
+      effectiveCost = outputCost;
+    } else {
+      return;
+    }
+
+    chartData.push({
+      x: arenaScore,
+      y: effectiveCost,
+      label: modelName
+    });
+  });
+
+  if (chartData.length === 0) {
+    alert("No valid data found for selected models. Please ensure models have both arena scores and pricing information.");
+    return;
+  }
+
+  if (chartInstance) {
+    chartInstance.destroy();
+  }
+
+  const ctx = document.getElementById('cost-chart').getContext('2d');
+  chartInstance = new Chart(ctx, {
+    type: 'scatter',
+    data: {
+      datasets: [{
+        label: 'Selected Models',
+        data: chartData,
+        backgroundColor: 'rgba(102, 126, 234, 0.6)',
+        borderColor: 'rgba(102, 126, 234, 1)',
+        borderWidth: 2,
+        pointRadius: 6,
+        pointHoverRadius: 8
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        title: {
+          display: true,
+          text: 'Chatbot Arena Score vs API Cost Effectiveness',
+          color: '#ffffff',
+          font: {
+            size: 18,
+            weight: 'bold'
+          }
+        },
+        legend: {
+          display: false
+        },
+        tooltip: {
+          backgroundColor: 'rgba(42, 45, 58, 0.95)',
+          titleColor: '#ffffff',
+          bodyColor: '#e3e6ef',
+          borderColor: '#667eea',
+          borderWidth: 1,
+          padding: 12,
+          displayColors: false,
+          callbacks: {
+            label: function(context) {
+              const point = context.raw;
+              return [
+                `Model: ${point.label}`,
+                `Arena Score: ${point.x.toFixed(0)}`,
+                `Avg Cost: $${point.y.toFixed(2)}/M tokens`
+              ];
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          title: {
+            display: true,
+            text: 'Arena Score',
+            color: '#9ca3af',
+            font: {
+              size: 14,
+              weight: 'bold'
+            }
+          },
+          ticks: {
+            color: '#9ca3af'
+          },
+          grid: {
+            color: 'rgba(55, 65, 81, 0.5)'
+          }
+        },
+        y: {
+          title: {
+            display: true,
+            text: 'Average Cost per Million Tokens ($)',
+            color: '#9ca3af',
+            font: {
+              size: 14,
+              weight: 'bold'
+            }
+          },
+          ticks: {
+            color: '#9ca3af',
+            callback: function(value) {
+              return '$' + value.toFixed(2);
+            }
+          },
+          grid: {
+            color: 'rgba(55, 65, 81, 0.5)'
+          }
+        }
+      }
+    }
+  });
+
+  const chartModal = document.getElementById('chart-modal');
+  chartModal.classList.add('active');
+}
