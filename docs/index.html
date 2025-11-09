@@ -41,7 +41,11 @@
             <label for="show-na-models">Show models without pricing</label>
           </div>
           
-          <button id="compare-button">Compare Selected Models</button>
+          <div class="button-group">
+            <button id="select-all-button">Select All</button>
+            <button id="compare-button">Compare Selected Models</button>
+          </div>
+          <button id="generate-chart-button">📊 Generate Chart</button>
         </div>
       </div>
 
@@ -162,7 +166,22 @@
     </div>
   </div>
 
+  <!-- Chart Modal -->
+  <div id="chart-modal" class="modal-overlay">
+    <div class="modal-content chart-modal-content">
+      <div class="modal-header">
+        <h3>Score vs API Costs</h3>
+        <p>Arena Score vs Effective API Cost for Selected Models</p>
+      </div>
+      <div class="chart-container">
+        <canvas id="cost-chart"></canvas>
+      </div>
+      <button class="modal-cancel" id="chart-modal-cancel">Close</button>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-  <script src="script.js?v=9"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="script.js?v=10"></script>
 </body>
 </html>
