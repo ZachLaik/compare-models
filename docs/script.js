@@ -674,17 +674,7 @@ function generateChart() {
           }
         },
         legend: {
-          display: true,
-          position: 'right',
-          labels: {
-            color: '#e3e6ef',
-            font: {
-              size: 11
-            },
-            padding: 8,
-            usePointStyle: true,
-            pointStyle: 'circle'
-          }
+          display: false
         },
         tooltip: {
           backgroundColor: 'rgba(42, 45, 58, 0.95)',
