@@ -4,6 +4,8 @@ Compare Models is a daily-updated leaderboard system that aggregates LLM perform
 
 # Recent Changes (November 2025)
 
+- **Select All Button**: New button to quickly select or deselect all visible models in the table. Button toggles between "Select All" and "Deselect All" states.
+- **Chart Visualization**: New "Generate Chart" button creates an interactive scatter plot showing Arena Score vs Average API Cost for selected models. Chart displays in a modal with tooltips showing model details.
 - **Compact UI Design**: Reduced padding and font sizes across all cards and sections for more efficient space usage
 - **Quick Scenarios Modal**: Clicking scenario buttons now opens a modal dialog asking users to choose between:
   - **Read**: Calculates input cost only (processing existing text)
@@ -68,5 +70,6 @@ Static HTML/CSS/JavaScript web interface that:
 
 ## Web Technologies
 - **Vanilla JavaScript**: Client-side data processing and UI interactions
+- **Chart.js**: Interactive data visualization library for scatter plot charts
 - **CSS3**: Modern styling with gradients and responsive design
 - **HTML5**: Static web interface structure
