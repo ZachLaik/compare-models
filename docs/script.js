@@ -635,6 +635,10 @@ function generateChart() {
   }
 
   const ctx = document.getElementById('cost-chart').getContext('2d');
+  
+  // Register datalabels plugin
+  Chart.register(ChartDataLabels);
+  
   chartInstance = new Chart(ctx, {
     type: 'scatter',
     data: {
