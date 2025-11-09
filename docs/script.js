@@ -4,6 +4,7 @@ const CSV_URL = "https://raw.githubusercontent.com/ZachLaik/compare-models/main/
 const searchInput = document.getElementById("search");
 const tableContainer = document.getElementById("table-container");
 const compareButton = document.getElementById("compare-button");
+const selectTop30Button = document.getElementById("select-top-30-button");
 const selectAllButton = document.getElementById("select-all-button");
 const generateChartButton = document.getElementById("generate-chart-button");
 const viewAllProvidersToggle = document.getElementById("view-all-providers");
@@ -502,6 +503,19 @@ fetch(CSV_URL)
       if (e.target === modal) {
         modal.classList.remove('active');
       }
+    });
+
+    // Select Top 30 button functionality
+    selectTop30Button.addEventListener('click', () => {
+      const checkboxes = document.querySelectorAll('.model-checkbox');
+      const top30Checkboxes = Array.from(checkboxes).slice(0, 30);
+      
+      top30Checkboxes.forEach(checkbox => {
+        checkbox.checked = true;
+        selectedModels.add(checkbox.dataset.model);
+      });
+      
+      console.log("Selected top 30 models:", Array.from(selectedModels));
     });
 
     // Select All button functionality

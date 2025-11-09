@@ -5,6 +5,7 @@ Compare Models is a daily-updated leaderboard system that aggregates LLM perform
 # Recent Changes (November 2025)
 
 - **Select All Button**: New button to quickly select or deselect all visible models in the table. Button toggles between "Select All" and "Deselect All" states.
+- **Top 30 Button**: One-click button to select the top 30 models in the current table view for quick comparisons.
 - **Chart Visualization**: New "Generate Chart" button creates an interactive scatter plot showing Arena Score vs Average API Cost for selected models. Chart displays in a modal with tooltips showing model details.
 - **Compact UI Design**: Reduced padding and font sizes across all cards and sections for more efficient space usage
 - **Quick Scenarios Modal**: Clicking scenario buttons now opens a modal dialog asking users to choose between:
