@@ -105,7 +105,7 @@ body {
   background: var(--bg-secondary);
   border-radius: 12px;
   border: 1px solid var(--border-subtle);
-  padding: 20px;
+  padding: 16px;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -198,7 +198,7 @@ body {
 #compare-button {
   flex: 1;
   min-width: 80px;
-  padding: 10px 16px;
+  padding: 8px 12px;
   background: transparent;
   border: 1px solid var(--border-primary);
   border-radius: 6px;
@@ -220,7 +220,7 @@ body {
 /* Primary Button */
 #generate-chart-button {
   width: 100%;
-  padding: 10px 16px;
+  padding: 8px 12px;
   background: var(--text-primary);
   border: none;
   border-radius: 6px;
@@ -752,7 +752,7 @@ footer a:hover {
   .cards-container {
     grid-template-columns: 1fr 1fr;
   }
-  
+
   .converter-card {
     grid-column: span 2;
   }
@@ -762,28 +762,28 @@ footer a:hover {
   .container {
     padding: 20px 16px;
   }
-  
+
   .header-text h1 {
     font-size: 24px;
   }
-  
+
   .cards-container {
     grid-template-columns: 1fr;
     gap: 12px;
   }
-  
+
   .converter-card {
     grid-column: span 1;
   }
-  
+
   .converter-inputs {
     flex-direction: column;
   }
-  
+
   .scenarios-grid {
     gap: 8px;
   }
-  
+
   .scenario-btn {
     min-width: 100px;
     padding: 10px 12px;
