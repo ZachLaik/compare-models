@@ -27,46 +27,71 @@
       <div class="search-card">
         <div class="card-header">
           <div class="card-icon">🔍</div>
-          <h3>Search & Filter Models</h3>
+          <h3>Search & Filter</h3>
         </div>
         <div class="card-content">
-          <input type="text" id="search" placeholder="e.g. gpt-4o, llama, mistral" />
+          <input type="text" id="search" placeholder="Search models..." />
           
           <div class="checkbox-container">
             <input type="checkbox" id="view-all-providers" />
-            <label for="view-all-providers">View all providers (show duplicates)</label>
+            <label for="view-all-providers">Show all providers</label>
           </div>
           <div class="checkbox-container">
             <input type="checkbox" id="show-na-models" />
-            <label for="show-na-models">Show models without pricing</label>
+            <label for="show-na-models">Include unpriced models</label>
           </div>
           
           <div class="button-group">
             <button id="select-top-30-button">Top 30</button>
-            <button id="select-all-button">Select All</button>
-            <button id="compare-button">Compare Selected Models</button>
+            <button id="select-all-button">All</button>
+            <button id="compare-button">Compare</button>
           </div>
-          <button id="generate-chart-button">📊 Generate Chart</button>
+          <button id="generate-chart-button">Generate Chart</button>
         </div>
       </div>
 
       <div class="calculator-card">
         <div class="card-header">
-          <div class="card-icon">🧮</div>
+          <div class="card-icon">💰</div>
           <h3>Cost Calculator</h3>
         </div>
         <div class="card-content">
           <div class="input-group">
-            <label for="input-tokens">Input Tokens (Millions)</label>
+            <label for="input-tokens">Input Tokens (M)</label>
             <input type="number" id="input-tokens" value="1" min="0" step="0.1" />
           </div>
           
           <div class="input-group">
-            <label for="output-tokens">Output Tokens (Millions)</label>
+            <label for="output-tokens">Output Tokens (M)</label>
             <input type="number" id="output-tokens" value="0.1" min="0" step="0.1" />
           </div>
           
-          <button id="calculate-costs">Calculate Costs</button>
+          <button id="calculate-costs">Calculate</button>
+        </div>
+      </div>
+
+      <div class="converter-card">
+        <div class="card-header">
+          <div class="card-icon">📄</div>
+          <h3>Token Converter</h3>
+        </div>
+        <div class="card-content">
+          <div class="converter-inputs">
+            <div class="input-group">
+              <label for="converter-pages">Pages</label>
+              <input type="number" id="converter-pages" value="48" min="0" step="1" />
+            </div>
+            <div class="input-group">
+              <label for="converter-words">Words</label>
+              <input type="number" id="converter-words" value="24000" min="0" step="100" />
+            </div>
+          </div>
+          <div class="converter-result">
+            <div class="converter-result-label">Estimated Tokens</div>
+            <div class="converter-result-value" id="converter-tokens">32,000</div>
+            <div class="converter-result-detail" id="converter-detail">~128,000 characters</div>
+          </div>
+          <div class="converter-formula">1 token ≈ 0.75 words ≈ 4 chars | 1 page ≈ 500 words</div>
         </div>
       </div>
     </div>
@@ -184,6 +209,6 @@
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
-  <script src="script.js?v=16"></script>
+  <script src="script.js?v=18"></script>
 </body>
 </html>

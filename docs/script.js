@@ -13,6 +13,49 @@ const inputTokensInput = document.getElementById("input-tokens");
 const outputTokensInput = document.getElementById("output-tokens");
 const calculateButton = document.getElementById("calculate-costs");
 
+const converterPagesInput = document.getElementById("converter-pages");
+const converterWordsInput = document.getElementById("converter-words");
+const converterTokensDisplay = document.getElementById("converter-tokens");
+const converterDetailDisplay = document.getElementById("converter-detail");
+
+let isConverterSyncing = false;
+
+function updateTokenDisplay(words) {
+  const tokens = Math.round(words / 0.75);
+  const chars = tokens * 4;
+  converterTokensDisplay.textContent = tokens.toLocaleString();
+  converterDetailDisplay.textContent = `~${chars.toLocaleString()} characters`;
+}
+
+function updateConverterFromPages() {
+  if (isConverterSyncing) return;
+  isConverterSyncing = true;
+  
+  const pages = parseFloat(converterPagesInput.value) || 0;
+  const words = pages * 500;
+  
+  converterWordsInput.value = words;
+  updateTokenDisplay(words);
+  
+  isConverterSyncing = false;
+}
+
+function updateConverterFromWords() {
+  if (isConverterSyncing) return;
+  isConverterSyncing = true;
+  
+  const words = parseFloat(converterWordsInput.value) || 0;
+  const pages = (words / 500).toFixed(1);
+  
+  converterPagesInput.value = pages;
+  updateTokenDisplay(words);
+  
+  isConverterSyncing = false;
+}
+
+converterPagesInput.addEventListener("input", updateConverterFromPages);
+converterWordsInput.addEventListener("input", updateConverterFromWords);
+
 let fullData = [];
 let isCompareMode = false;
 let showAllProviders = false;
