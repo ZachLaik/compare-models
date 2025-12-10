@@ -50,7 +50,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
+  gap: 8px;
 }
 
 .logo {
@@ -217,7 +217,7 @@ body {
   border-color: var(--text-muted);
 }
 
-/* Primary Button */
+/* Primary Button - Generate Chart */
 #generate-chart-button {
   width: 100%;
   padding: 10px 16px;
@@ -234,6 +234,26 @@ body {
 #generate-chart-button:hover {
   opacity: 0.9;
   transform: translateY(-1px);
+}
+
+/* Main Action Button - Compare */
+#compare-button {
+  flex: 1;
+  min-width: 80px;
+  padding: 12px 16px !important;
+  background: var(--accent-gradient) !important;
+  border: none !important;
+  color: var(--text-primary) !important;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+#compare-button:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px var(--glow-blue);
 }
 
 /* Calculator Card */
