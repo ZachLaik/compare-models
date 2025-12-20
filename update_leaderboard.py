@@ -529,18 +529,19 @@ for old, new in {
         # Convert from per-token to per-million-tokens, preserving NaN for missing values
         numeric_values = pd.to_numeric(merged[old], errors="coerce")
 
-        # Multiply by 1M first (before any rounding or string conversion)
+        # Multiply by 1M first - this is critical to do before ANY formatting
         converted_values = numeric_values * 1_000_000
         
-        # Store as numeric, will convert to string later
-        merged[new] = converted_values
+        # Store as numeric float64 (NOT string yet)
+        merged[new] = converted_values.astype('float64')
 
         # Debug: Show values specifically for gemma-3-27b
         gemma_rows = merged[merged['Model'].str.contains('gemma-3-27b', case=False, na=False)]
         for _, row in gemma_rows.iterrows():
             original_val = row.get(old)
             converted_val = row.get(new)
-            print(f"   '{row['Model']}' {old}: {original_val} (scientific) -> {converted_val} (per million)")
+            print(f"   '{row['Model']}' {old}: {original_val} -> {converted_val}")
+            print(f"      Type: {type(converted_val)}, Value as float: {float(converted_val) if pd.notna(converted_val) else 'NaN'}")
 
         merged.drop(columns=old, inplace=True)
 
@@ -573,10 +574,18 @@ for col in cost_columns:
         gemma_debug = merged[merged['Model'].str.contains('gemma-3-27b', case=False, na=False)][col].head(1)
         if not gemma_debug.empty:
             print(f"   Final {col} numeric values for gemma-3-27b before CSV write: {list(gemma_debug)}")
+            print(f"      Raw value: {gemma_debug.iloc[0]}")
 
-        # Convert to strings with proper formatting, using more decimal places for small values
-        # Round to 2 decimal places for display but format with 6 decimals to preserve precision
-        merged[col] = numeric_col.apply(lambda x: f"{x:.2f}" if pd.notna(x) else "")
+        # Convert to strings - handle very small values properly
+        def format_cost(x):
+            if pd.isna(x):
+                return ""
+            # Force to float to avoid any type issues
+            val = float(x)
+            # Format with 2 decimal places (e.g., 0.04 not 0.00)
+            return f"{val:.2f}"
+        
+        merged[col] = numeric_col.apply(format_cost)
 
         # Final debug: Show string values
         if not gemma_debug.empty:
