@@ -147,22 +147,40 @@ def fetch_openrouter_pricing() -> Dict[str, Any]:
         resp.raise_for_status()
         openrouter_data = resp.json()
 
+        # First pass: collect all models and identify free/paid pairs
+        all_models = {}
+        free_model_bases = set()
+        
+        for model in openrouter_data.get('data', []):
+            model_id = model.get('id') or ''
+            if not model_id:
+                continue
+            
+            all_models[model_id] = model
+            
+            # Track models with :free suffix
+            if ':free' in model_id:
+                base_id = model_id.replace(':free', '')
+                free_model_bases.add(base_id)
+
         # Convert OpenRouter format to match LiteLLM structure
         openrouter_models = {}
-        for model in openrouter_data.get('data', []):
+        for model_id, model in all_models.items():
+            # Skip free models if a paid version exists
+            if ':free' in model_id:
+                base_id = model_id.replace(':free', '')
+                if base_id in all_models:
+                    print(f"   ⏭️  Skipping free model '{model_id}' because paid version exists")
+                    continue
+            
             # Safely handle None values
-            model_id = model.get('id') or ''
             canonical_slug = model.get('canonical_slug') or ''
             hugging_face_id = model.get('hugging_face_id') or ''
 
             # Convert to lowercase only if not empty
-            model_id = model_id.lower() if model_id else ''
+            model_id_lower = model_id.lower() if model_id else ''
             canonical_slug = canonical_slug.lower() if canonical_slug else ''
             hugging_face_id = hugging_face_id.lower() if hugging_face_id else ''
-
-            # Skip models without valid ID
-            if not model_id:
-                continue
 
             pricing = model.get('pricing', {})
 
@@ -184,21 +202,21 @@ def fetch_openrouter_pricing() -> Dict[str, Any]:
                 }
 
                 # Add under multiple identifiers for better matching
-                openrouter_models[model_id] = model_data
+                openrouter_models[model_id_lower] = model_data
 
                 # Also add without the provider prefix for better matching
-                if '/' in model_id:
-                    model_without_prefix = model_id.split('/', 1)[1]
+                if '/' in model_id_lower:
+                    model_without_prefix = model_id_lower.split('/', 1)[1]
                     openrouter_models[model_without_prefix] = model_data
 
-                if canonical_slug and canonical_slug != model_id:
+                if canonical_slug and canonical_slug != model_id_lower:
                     openrouter_models[canonical_slug] = model_data
                     # Add canonical slug without prefix too
                     if '/' in canonical_slug:
                         canonical_without_prefix = canonical_slug.split('/', 1)[1]
                         openrouter_models[canonical_without_prefix] = model_data
 
-                if hugging_face_id and hugging_face_id != model_id and hugging_face_id != canonical_slug:
+                if hugging_face_id and hugging_face_id != model_id_lower and hugging_face_id != canonical_slug:
                     openrouter_models[hugging_face_id] = model_data
 
         print(f"✅ Fetched pricing for {len(openrouter_models):,} model entries from OpenRouter")
