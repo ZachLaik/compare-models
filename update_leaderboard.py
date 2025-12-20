@@ -464,18 +464,29 @@ if not claude_models_in_df.empty:
 # For models that match multiple pricing entries, prefer ones with actual cost data
 def select_best_pricing_row(group):
     """Select the best pricing row from a group of matches."""
-    # Prefer rows with both input and output cost data
+    # Prefer rows with both input and output cost data that are NOT zero
+    has_both_costs_nonzero = group[
+        (group['input_cost_per_token'].notna()) &
+        (group['output_cost_per_token'].notna()) &
+        (group['input_cost_per_token'] > 0) &
+        (group['output_cost_per_token'] > 0)
+    ]
+
+    if not has_both_costs_nonzero.empty:
+        # If multiple have both costs, prefer primary providers
+        primary_providers = ['openai', 'anthropic', 'vertex_ai-language-models', 'gemini', 'openrouter']
+        primary_matches = has_both_costs_nonzero[has_both_costs_nonzero['litellm_provider'].isin(primary_providers)]
+        if not primary_matches.empty:
+            return primary_matches.iloc[0]
+        return has_both_costs_nonzero.iloc[0]
+
+    # Fall back to rows with both costs (even if zero - for free models)
     has_both_costs = group[
         (group['input_cost_per_token'].notna()) &
         (group['output_cost_per_token'].notna())
     ]
 
     if not has_both_costs.empty:
-        # If multiple have both costs, prefer primary providers
-        primary_providers = ['openai', 'anthropic', 'vertex_ai-language-models', 'gemini']
-        primary_matches = has_both_costs[has_both_costs['litellm_provider'].isin(primary_providers)]
-        if not primary_matches.empty:
-            return primary_matches.iloc[0]
         return has_both_costs.iloc[0]
 
     # If none have both costs, prefer ones with at least input cost
