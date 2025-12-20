@@ -529,16 +529,18 @@ for old, new in {
         # Convert from per-token to per-million-tokens, preserving NaN for missing values
         numeric_values = pd.to_numeric(merged[old], errors="coerce")
 
-        # Multiply by 1M and round to 2 decimal places to avoid precision issues
+        # Multiply by 1M first (before any rounding or string conversion)
         converted_values = numeric_values * 1_000_000
-        merged[new] = converted_values.round(2)
+        
+        # Store as numeric, will convert to string later
+        merged[new] = converted_values
 
-        # Debug: Show Claude values specifically
-        claude_rows = merged[merged['Model'].str.contains('claude', case=False, na=False)]
-        for _, row in claude_rows.head(3).iterrows():
+        # Debug: Show values specifically for gemma-3-27b
+        gemma_rows = merged[merged['Model'].str.contains('gemma-3-27b', case=False, na=False)]
+        for _, row in gemma_rows.iterrows():
             original_val = row.get(old)
             converted_val = row.get(new)
-            print(f"   '{row['Model']}' {old}: {original_val} -> {converted_val}")
+            print(f"   '{row['Model']}' {old}: {original_val} (scientific) -> {converted_val} (per million)")
 
         merged.drop(columns=old, inplace=True)
 
@@ -568,18 +570,18 @@ for col in cost_columns:
         numeric_col = pd.to_numeric(merged[col], errors='coerce')
 
         # Debug: Show what we have before string conversion
-        claude_debug = merged[merged['Model'].str.contains('claude', case=False, na=False)][col].head(3)
-        if not claude_debug.empty:
-            print(f"   Final {col} values for Claude before CSV write: {list(claude_debug)}")
-            print(f"   As numeric: {list(pd.to_numeric(claude_debug, errors='coerce'))}")
+        gemma_debug = merged[merged['Model'].str.contains('gemma-3-27b', case=False, na=False)][col].head(1)
+        if not gemma_debug.empty:
+            print(f"   Final {col} numeric values for gemma-3-27b before CSV write: {list(gemma_debug)}")
 
-        # Convert to strings with proper formatting to avoid pandas CSV serialization bugs
-        merged[col] = numeric_col.apply(lambda x: f"{x:.6f}" if pd.notna(x) else "")
+        # Convert to strings with proper formatting, using more decimal places for small values
+        # Round to 2 decimal places for display but format with 6 decimals to preserve precision
+        merged[col] = numeric_col.apply(lambda x: f"{x:.2f}" if pd.notna(x) else "")
 
         # Final debug: Show string values
-        if not claude_debug.empty:
-            claude_final = merged[merged['Model'].str.contains('claude', case=False, na=False)][col].head(3)
-            print(f"   Final {col} string values for Claude: {list(claude_final)}")
+        if not gemma_debug.empty:
+            gemma_final = merged[merged['Model'].str.contains('gemma-3-27b', case=False, na=False)][col].head(1)
+            print(f"   Final {col} string values for gemma-3-27b: {list(gemma_final)}")
 
 # Reorder columns to put cost columns at the front for better CSV parsing
 cost_cols = [col for col in merged.columns if 'cost_per_million_tokens' in col]
