@@ -188,6 +188,12 @@ def fetch_openrouter_pricing() -> Dict[str, Any]:
             prompt_cost = float(pricing.get('prompt', 0)) if pricing.get('prompt') else None
             completion_cost = float(pricing.get('completion', 0)) if pricing.get('completion') else None
 
+            # Debug specific models
+            if 'gemma-3-27b' in model_id.lower():
+                print(f"   🔍 DEBUG gemma: {model_id}")
+                print(f"      Raw pricing: prompt={pricing.get('prompt')}, completion={pricing.get('completion')}")
+                print(f"      Converted: prompt_cost={prompt_cost}, completion_cost={completion_cost}")
+
             if prompt_cost is not None or completion_cost is not None:
                 model_data = {
                     'input_cost_per_token': prompt_cost,
