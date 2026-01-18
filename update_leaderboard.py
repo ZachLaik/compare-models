@@ -321,6 +321,9 @@ def generate_model_variants(text: str) -> List[str]:
         # Remove reasoning/thinking suffixes
         no_reasoning = re.sub(r'-(thinking|reasoning|cot)$', '', variant)
         variants.add(no_reasoning)
+        
+        # Also try adding -preview suffix (many models have -preview versions with more complete data)
+        variants.add(f"{variant}-preview")
 
     # Handle specific model name patterns
     for variant in list(variants):
@@ -409,22 +412,77 @@ for key in matching_index.keys():
 for debug_name, examples in debug_examples.items():
     print(f"   Matching index entries containing '{debug_name}': {examples}")
 
-# 4. Advanced matching strategy
+# 4. Advanced matching strategy - collect all matches and pick the best one
+def score_model_data(model_id: str) -> int:
+    """Score a model based on data completeness (higher is better)."""
+    if model_id not in model_df['model'].values:
+        return 0
+    
+    row = model_df[model_df['model'] == model_id].iloc[0]
+    score = 0
+    
+    # Has pricing data?
+    try:
+        input_cost = pd.to_numeric(row.get('input_cost_per_token'), errors='coerce')
+        if pd.notna(input_cost) and input_cost > 0:
+            score += 10
+    except:
+        pass
+    
+    try:
+        output_cost = pd.to_numeric(row.get('output_cost_per_token'), errors='coerce')
+        if pd.notna(output_cost) and output_cost > 0:
+            score += 10
+    except:
+        pass
+        
+    # Has token count data?
+    try:
+        max_in = pd.to_numeric(row.get('max_input_tokens'), errors='coerce')
+        if pd.notna(max_in) and max_in > 0:
+            score += 20
+    except:
+        pass
+    
+    try:
+        max_out = pd.to_numeric(row.get('max_output_tokens'), errors='coerce')
+        if pd.notna(max_out) and max_out > 0:
+            score += 20
+    except:
+        pass
+        
+    # Prefer primary providers
+    primary_providers = ['openai', 'anthropic', 'vertex_ai-language-models', 'gemini', 'openrouter']
+    if row.get('litellm_provider') in primary_providers:
+        score += 5
+        
+    return score
+
 def find_best_match(leaderboard_name: str) -> Optional[str]:
     """Find the best match for a leaderboard model name."""
     variants = generate_model_variants(leaderboard_name)
-
+    
+    # Collect all matching models
+    matches = []
     for variant in variants:
         if variant in matching_index:
-            return matching_index[variant]
-
-    return None
+            matched_model = matching_index[variant]
+            if matched_model not in [m[0] for m in matches]:
+                score = score_model_data(matched_model)
+                matches.append((matched_model, score))
+    
+    if not matches:
+        return None
+    
+    # Return the match with the highest score
+    matches.sort(key=lambda x: x[1], reverse=True)
+    return matches[0][0]
 
 # Apply advanced matching with detailed logging
 def find_best_match_with_logging(leaderboard_name: str) -> Optional[str]:
     """Find the best match for a leaderboard model name with detailed logging."""
     # Add logging for specific models we're interested in
-    debug_models = ['claude opus 4.1', 'glm-4.5', 'qwen3-235b-a22b-instruct-2507']
+    debug_models = ['claude opus 4.1', 'glm-4.5', 'qwen3-235b-a22b-instruct-2507', 'gemini-3-pro']
     should_log = any(debug_name.lower() in leaderboard_name.lower() for debug_name in debug_models)
 
     if should_log:
@@ -435,21 +493,33 @@ def find_best_match_with_logging(leaderboard_name: str) -> Optional[str]:
     if should_log:
         print(f"   Generated {len(variants)} variants: {variants[:10]}{'...' if len(variants) > 10 else ''}")
 
+    # Collect all matching models with their scores
+    matches = []
     for i, variant in enumerate(variants):
         if variant in matching_index:
             matched_model = matching_index[variant]
-            if should_log:
-                print(f"   ✅ MATCH found at variant #{i}: '{variant}' -> '{matched_model}'")
-            return matched_model
-
+            if matched_model not in [m[0] for m in matches]:
+                score = score_model_data(matched_model)
+                matches.append((matched_model, score, variant, i))
+                if should_log:
+                    print(f"   Found match at variant #{i}: '{variant}' -> '{matched_model}' (score: {score})")
+    
+    if not matches:
+        if should_log:
+            print(f"   ❌ NO MATCH found for any variant")
+            similar_keys = [k for k in matching_index.keys() if any(word in k for word in leaderboard_name.lower().split())][:5]
+            if similar_keys:
+                print(f"   Similar available keys: {similar_keys}")
+        return None
+    
+    # Return the match with the highest score
+    matches.sort(key=lambda x: x[1], reverse=True)
+    best_match = matches[0]
+    
     if should_log:
-        print(f"   ❌ NO MATCH found for any variant")
-        # Show what's available that might be similar
-        similar_keys = [k for k in matching_index.keys() if any(word in k for word in leaderboard_name.lower().split())][:5]
-        if similar_keys:
-            print(f"   Similar available keys: {similar_keys}")
-
-    return None
+        print(f"   ✅ BEST MATCH: '{best_match[0]}' (score: {best_match[1]}, from variant #{best_match[3]}: '{best_match[2]}')")
+    
+    return best_match[0]
 
 df['matched_model'] = df['Model'].apply(find_best_match_with_logging)
 
@@ -469,18 +539,45 @@ if not claude_models_in_df.empty:
         else:
             print(f"      -> ❌ NOT FOUND in pricing data")
 
-# For models that match multiple pricing entries, prefer ones with actual cost data
+# For models that match multiple pricing entries, prefer ones with actual cost data AND token counts
 def select_best_pricing_row(group):
     """Select the best pricing row from a group of matches."""
-    # Prefer rows with both input and output cost data that are NOT zero
+    # Convert columns to numeric for comparison
+    input_cost = pd.to_numeric(group['input_cost_per_token'], errors='coerce')
+    output_cost = pd.to_numeric(group['output_cost_per_token'], errors='coerce')
+    max_input = pd.to_numeric(group['max_input_tokens'], errors='coerce')
+    
+    # Best case: rows with both costs AND token counts
+    has_complete_data = group[
+        (input_cost.notna()) &
+        (output_cost.notna()) &
+        (input_cost > 0) &
+        (output_cost > 0) &
+        (max_input.notna()) &
+        (max_input > 0)
+    ]
+
+    if not has_complete_data.empty:
+        # If multiple have complete data, prefer primary providers
+        primary_providers = ['openai', 'anthropic', 'vertex_ai-language-models', 'gemini', 'openrouter']
+        primary_matches = has_complete_data[has_complete_data['litellm_provider'].isin(primary_providers)]
+        if not primary_matches.empty:
+            return primary_matches.iloc[0]
+        return has_complete_data.iloc[0]
+
+    # Next: rows with both input and output cost data that are NOT zero
     has_both_costs_nonzero = group[
-        (group['input_cost_per_token'].notna()) &
-        (group['output_cost_per_token'].notna()) &
-        (group['input_cost_per_token'] > 0) &
-        (group['output_cost_per_token'] > 0)
+        (input_cost.notna()) &
+        (output_cost.notna()) &
+        (input_cost > 0) &
+        (output_cost > 0)
     ]
 
     if not has_both_costs_nonzero.empty:
+        # Prefer ones with token counts
+        with_tokens = has_both_costs_nonzero[max_input.loc[has_both_costs_nonzero.index].notna()]
+        if not with_tokens.empty:
+            return with_tokens.iloc[0]
         # If multiple have both costs, prefer primary providers
         primary_providers = ['openai', 'anthropic', 'vertex_ai-language-models', 'gemini', 'openrouter']
         primary_matches = has_both_costs_nonzero[has_both_costs_nonzero['litellm_provider'].isin(primary_providers)]
@@ -490,15 +587,15 @@ def select_best_pricing_row(group):
 
     # Fall back to rows with both costs (even if zero - for free models)
     has_both_costs = group[
-        (group['input_cost_per_token'].notna()) &
-        (group['output_cost_per_token'].notna())
+        (input_cost.notna()) &
+        (output_cost.notna())
     ]
 
     if not has_both_costs.empty:
         return has_both_costs.iloc[0]
 
     # If none have both costs, prefer ones with at least input cost
-    has_input_cost = group[group['input_cost_per_token'].notna()]
+    has_input_cost = group[input_cost.notna()]
     if not has_input_cost.empty:
         return has_input_cost.iloc[0]
 
