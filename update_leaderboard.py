@@ -313,6 +313,14 @@ def generate_model_variants(text: str) -> List[str]:
         # Remove instruct/chat suffixes
         no_suffix = re.sub(r'-(instruct|chat|preview|turbo)$', '', variant)
         variants.add(no_suffix)
+        
+        # Remove quality tier suffixes like -high, -low, -medium
+        no_tier = re.sub(r'-(high|low|medium|ultra|lite|fast|slow)$', '', variant)
+        variants.add(no_tier)
+        
+        # Remove reasoning/thinking suffixes
+        no_reasoning = re.sub(r'-(thinking|reasoning|cot)$', '', variant)
+        variants.add(no_reasoning)
 
     # Handle specific model name patterns
     for variant in list(variants):
