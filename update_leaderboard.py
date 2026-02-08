@@ -603,7 +603,14 @@ def select_best_pricing_row(group):
     return group.iloc[0]
 
 # Group pricing data by model and select best row for each
-model_df_best = model_df.groupby('model').apply(select_best_pricing_row).reset_index(drop=True)
+# Use include_groups=False for pandas 3.0+ compatibility, then restore
+# the 'model' column from the group keys via reset_index.
+model_df_best = (
+    model_df.groupby('model')
+    .apply(select_best_pricing_row, include_groups=False)
+    .reset_index(level='model')
+    .reset_index(drop=True)
+)
 
 print(f"📊 Reduced pricing data from {len(model_df):,} to {len(model_df_best):,} rows by selecting best pricing per model")
 
